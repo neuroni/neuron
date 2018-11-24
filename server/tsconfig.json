@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "esNext",
+		"noImplicitAny": false,
+		"outDir": "./dist",
+		"sourceMap": true,
+		"allowJs": true,
+		"experimentalDecorators": true,
+		"noFallthroughCasesInSwitch": true,
+		"strictNullChecks": true,
+		"lib": ["esNext", "esnext.asynciterable", "dom"]
+	},
+	"include": ["src/**/*"],
+	"exclude": ["dist", "node_modules"]
+}
