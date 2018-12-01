@@ -5,4 +5,5 @@ type User {
 
 type CreateAdminUserResponse {
 	success: Boolean
+	viewer: Viewer
 }

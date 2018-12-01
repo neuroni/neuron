@@ -1,13 +1,12 @@
 import * as bodyParser from "body-parser";
+import * as cors from "cors";
 import * as express from "express";
 import * as session from "express-session";
 
 import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
-import { DataStore } from "mockdatastore";
 import { User } from "./user/User";
-import { createCreateEnsembleForUser } from "./ensemble/createEnsembleForUser";
 import { createFakeServices } from "./createFakeServices";
 import { schema } from "./schema";
 
@@ -22,6 +21,13 @@ export const main = () => {
 	);
 
 	app.use(
+		cors({
+			origin: true,
+			credentials: true
+		})
+	);
+
+	app.use(
 		session({
 			secret: "keyboard cat",
 			resave: false,
@@ -30,15 +36,8 @@ export const main = () => {
 		})
 	);
 
-	const dataStore = new DataStore({
-		user: []
-	});
-
 	app.use("/graphql", async (req, res, next) => {
-		const services = await createFakeServices({
-			dataStore: dataStore,
-			currentUserId: req.session && req.session.currentUserId
-		});
+		const services = await createFakeServices();
 
 		graphqlExpress({
 			schema,

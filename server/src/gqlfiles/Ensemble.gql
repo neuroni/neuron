@@ -1,5 +1,5 @@
 type Ensemble implements EnsembleObject {
-	id: ID
+	id: ID!
 	name: String
 	type: String
 	ensembleObjects: [EnsembleObject]
@@ -13,7 +13,7 @@ interface EnsembleObject {
 
 type EnsemblesConnection {
 	totalCount: Int
-	ensembles: [Ensemble]
+	ensembles: [Ensemble!]!
 }
 
 type CreateEnsembleForUserResponse {

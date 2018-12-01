@@ -25,7 +25,7 @@ export const EnsembleObject = {
 };
 
 export const Query = {
-	ensembles: async (root, args, context: Context) => {
+	userEnsembles: async (root, args, context: Context) => {
 		const ensembleIds = await context.ensembleRelationCoordinatorReader.fetchUserRootEnsembleIds(
 			context.getCurrentUserId()
 		);

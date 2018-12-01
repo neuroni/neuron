@@ -1,4 +1,4 @@
 type Query {
-	ensembles: EnsemblesConnection
-	viewer: Viewer
+	userEnsembles: EnsemblesConnection
+	viewer: Viewer!
 }

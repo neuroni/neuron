@@ -1,15 +1,12 @@
 import * as React from "react";
 
-import { Button, Grid } from "react-bootstrap";
-
-import { AppendBottom } from "src/layout/AppendBottom";
+import { CreateEnsemble } from "src/ensemble/CreateEnsemble";
 import { EnsembleList } from "src/ensemble/EnsembleList";
+import { Grid } from "react-bootstrap";
 
 export const EnsemblesPage = () => (
 	<Grid fluid={false}>
-		<AppendBottom>
-			<Button>Luo kokonaisuus</Button>
-		</AppendBottom>
+		<CreateEnsemble />
 
 		<EnsembleList />
 	</Grid>

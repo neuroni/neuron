@@ -1,10 +1,16 @@
 import * as React from "react";
 
-import { Panel } from "react-bootstrap";
+import { Grid, Panel } from "react-bootstrap";
+
+import { LoginForm } from "src/user/LoginForm";
 
 export const LoginPage = () => (
-	<Panel>
-		<Panel.Heading>Kirjaudu sisään</Panel.Heading>
-		<Panel.Body>asd</Panel.Body>
-	</Panel>
+	<Grid>
+		<Panel>
+			<Panel.Heading>Kirjaudu sisään</Panel.Heading>
+			<Panel.Body>
+				<LoginForm />
+			</Panel.Body>
+		</Panel>
+	</Grid>
 );

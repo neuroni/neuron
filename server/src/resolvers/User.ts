@@ -21,6 +21,9 @@ export const Mutation = {
 			password: args.password
 		});
 
-		return user;
+		return {
+			success: user.success,
+			viewer: {}
+		};
 	}
 };

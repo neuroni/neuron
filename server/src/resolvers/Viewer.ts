@@ -16,7 +16,8 @@ export const Mutation = {
 
 		if (!res.success) {
 			return {
-				success: false
+				success: false,
+				viewer: {}
 			};
 		}
 
@@ -25,7 +26,8 @@ export const Mutation = {
 		}
 
 		return {
-			success: true
+			success: true,
+			viewer: {}
 		};
 	},
 	logout: async (root, args, context: Context) => {}
