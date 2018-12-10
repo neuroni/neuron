@@ -1,0 +1,5 @@
+type Query {
+	ensemble(ensembleId: ID!): Ensemble
+	userEnsembles: EnsemblesConnection
+	viewer: Viewer!
+}

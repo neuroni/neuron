@@ -1,0 +1,27 @@
+type Ensemble implements EnsembleObject {
+	id: ID!
+	name: String
+	type: String!
+	ensembleObjects: [EnsembleObject!]!
+}
+
+interface EnsembleObject {
+	id: ID!
+	name: String
+	type: String!
+}
+
+type EnsemblesConnection {
+	totalCount: Int
+	ensembles: [Ensemble!]!
+}
+
+type CreateEnsembleForUserResponse {
+	success: Boolean
+	ensemble: Ensemble
+}
+
+type CreateEnsembleToEnsembleResponse {
+	success: Boolean
+	ensemble: Ensemble
+}

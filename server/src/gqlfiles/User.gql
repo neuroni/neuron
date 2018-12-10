@@ -1,0 +1,9 @@
+type User {
+	id: ID
+	name: String
+}
+
+type CreateAdminUserResponse {
+	success: Boolean
+	viewer: Viewer
+}

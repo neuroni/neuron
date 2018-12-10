@@ -1,0 +1,14 @@
+type Viewer {
+	user: User
+	hasSystemAdminUser: Boolean!
+}
+
+type LoginResponse {
+	success: Boolean
+	viewer: Viewer!
+}
+
+type LogoutResponse {
+	success: Boolean
+	viewer: Viewer!
+}
