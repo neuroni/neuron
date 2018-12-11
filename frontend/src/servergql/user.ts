@@ -24,3 +24,17 @@ export const LOGIN_USER_MUTATION = gql`
 		}
 	}
 `;
+
+export const LOGOUT_USER_MUTATION = gql`
+	mutation logout { 
+		logout {
+			success
+			viewer {
+				user {
+					id
+					name
+				}
+			}
+		}
+	}
+`;

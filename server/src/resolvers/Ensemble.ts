@@ -2,7 +2,8 @@ import {
 	CreateEnsembleForUserMutationArgs,
 	CreateEnsembleForUserResponse,
 	CreateEnsembleToEnsembleMutationArgs,
-	CreateEnsembleToEnsembleResponse
+	CreateEnsembleToEnsembleResponse,
+	EnsembleQueryArgs
 } from "../schemadef";
 
 import { Context } from "../graphql/Context";
@@ -25,6 +26,11 @@ export const EnsembleObject = {
 };
 
 export const Query = {
+	ensemble: async (root, args: EnsembleQueryArgs, context: Context) => {
+		const ensemble = await context.ensembleReader.fetchEnsemble(args.ensembleId);
+
+		return ensemble;
+	},
 	userEnsembles: async (root, args, context: Context) => {
 		const ensembleIds = await context.ensembleRelationCoordinatorReader.fetchUserRootEnsembleIds(
 			context.getCurrentUserId()

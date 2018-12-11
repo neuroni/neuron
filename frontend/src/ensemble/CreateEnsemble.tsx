@@ -1,10 +1,12 @@
 import * as React from "react";
 
 import { AppendBottom } from "src/layout/AppendBottom";
+import { CreateEnsembleMutation } from "./CreateEnsembleMutation";
 
 export class CreateEnsemble extends React.Component {
 	public state = {
-		creating: false
+		creating: false,
+		name: ""
 	};
 
 	public render() {
@@ -27,7 +29,11 @@ export class CreateEnsemble extends React.Component {
 		return (
 			<AppendBottom>
 				<div>
-					<input type="text" />
+					<input type="text" value={this.state.name} onChange={(e) => {
+						this.setState({
+							name: e.target.value
+						})
+					}} />
 					<button
 						onClick={() => {
 							this.setState({
@@ -37,7 +43,20 @@ export class CreateEnsemble extends React.Component {
 					>
 						Peruuta
 					</button>
-					<button>Tallenna</button>
+					<CreateEnsembleMutation>
+						{createEnsembleForUser => 			
+						<button onClick={() => {
+							createEnsembleForUser({
+								variables: {
+									name: this.state.name
+								}
+							})
+						}}>
+							Tallenna
+						</button>}
+
+					</CreateEnsembleMutation>
+					
 				</div>
 			</AppendBottom>
 		);

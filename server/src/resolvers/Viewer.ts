@@ -30,7 +30,21 @@ export const Mutation = {
 			viewer: {}
 		};
 	},
-	logout: async (root, args, context: Context) => {}
+	logout: async (root, args, context: Context) => {
+		if (!context.getCurrentUserId()) {
+			return {
+				success: false,
+				viewer: {}
+			}
+		}
+		
+		context.clearCurrentUserId();
+
+		return {
+			success: true,
+			viewer: {}
+		}
+	}
 };
 
 export const Viewer = {

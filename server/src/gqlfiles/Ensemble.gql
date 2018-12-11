@@ -1,14 +1,14 @@
 type Ensemble implements EnsembleObject {
 	id: ID!
 	name: String
-	type: String
-	ensembleObjects: [EnsembleObject]
+	type: String!
+	ensembleObjects: [EnsembleObject!]!
 }
 
 interface EnsembleObject {
-	id: ID
+	id: ID!
 	name: String
-	type: String
+	type: String!
 }
 
 type EnsemblesConnection {

@@ -48,4 +48,8 @@ export class Context {
 	public getCurrentUserId() {
 		return this.session.currentUserId;
 	}
+
+	public clearCurrentUserId() {
+		this.session.currentUserId = undefined;
+	}
 }

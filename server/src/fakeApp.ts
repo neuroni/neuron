@@ -37,7 +37,9 @@ export const main = () => {
 	);
 
 	app.use("/graphql", async (req, res, next) => {
-		const services = await createFakeServices();
+		const services = await createFakeServices({
+			currentUserId: req.session && req.session.currentUserId
+		});
 
 		graphqlExpress({
 			schema,

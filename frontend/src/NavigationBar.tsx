@@ -3,6 +3,7 @@ import * as React from "react";
 import { Button, Nav, NavItem, Navbar } from "react-bootstrap";
 
 import { GetPageViewer } from "./viewer/GetPageViewer";
+import { LogoutUser } from "./user/LogoutUser";
 
 export const NavigationBar = () => (
 	<Navbar>
@@ -37,6 +38,12 @@ export const NavigationBar = () => (
 							}}
 						>
 							{props.data.viewer.user.name}
+							<LogoutUser>{logoutUser => <Button onClick={() => {
+								logoutUser({})
+							}}>
+								Kirjaudu ulos
+							</Button>}</LogoutUser>
+
 						</NavItem>
 					);
 				}}

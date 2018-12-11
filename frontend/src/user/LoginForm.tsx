@@ -24,7 +24,7 @@ export class LoginForm extends React.Component {
 				</div>
 				<div>
 					<input
-						type="text"
+						type="password"
 						value={this.state.password}
 						onChange={e => {
 							this.setState({

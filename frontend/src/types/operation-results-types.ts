@@ -10,6 +10,37 @@ export interface getUserEnsemblesQuery {
   } | null,
 };
 
+export interface createEnsembleForUserMutationVariables {
+  name: string,
+};
+
+export interface createEnsembleForUserMutation {
+  createEnsembleForUser:  {
+    success: boolean | null,
+    ensemble:  {
+      id: string,
+      name: string | null,
+    } | null,
+  } | null,
+};
+
+export interface getEnsemblePageEnsembleQueryVariables {
+  ensembleId: string,
+};
+
+export interface getEnsemblePageEnsembleQuery {
+  ensemble:  {
+    id: string,
+    name: string | null,
+    ensembleObjects:  Array<( {
+        id: string,
+        name: string | null,
+        type: string,
+      }
+    ) >,
+  } | null,
+};
+
 export interface createAdminUserMutationVariables {
   password: string,
 };
@@ -30,6 +61,18 @@ export interface loginMutationVariables {
 
 export interface loginMutation {
   login:  {
+    success: boolean | null,
+    viewer:  {
+      user:  {
+        id: string | null,
+        name: string | null,
+      } | null,
+    },
+  } | null,
+};
+
+export interface logoutMutation {
+  logout:  {
     success: boolean | null,
     viewer:  {
       user:  {
