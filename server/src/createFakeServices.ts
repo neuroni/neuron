@@ -53,8 +53,6 @@ export const createFakeServices = async (args?: {
 
 	const dataStore = (args && args.dataStore) || new DataStore({});
 
-	await dataStore.load("database.json");
-
 	const userRepository = new MemoryUserRepository({
 		dataStore: dataStore
 	});

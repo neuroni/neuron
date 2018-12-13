@@ -3,14 +3,18 @@ import * as cors from "cors";
 import * as express from "express";
 import * as session from "express-session";
 
+import { pathExists } from "fs-extra";
+
 import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
-import { User } from "./user/User";
+
 import { createFakeServices } from "./createFakeServices";
 import { schema } from "./schema";
+import { EventStore } from "./eventstore/EventStore";
+import { DataStore } from "mockdatastore";
 
-export const main = () => {
+export const main = async () => {
 	const app = express();
 
 	app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,8 +40,15 @@ export const main = () => {
 		})
 	);
 
+	const dataStore = new DataStore({});
+
+	if (await pathExists("database.json")) {
+		await dataStore.load("database.json");
+	}
+
 	app.use("/graphql", async (req, res, next) => {
 		const services = await createFakeServices({
+			dataStore: dataStore,
 			currentUserId: req.session && req.session.currentUserId
 		});
 
