@@ -8,7 +8,7 @@ import { LogoutUser } from "./user/LogoutUser";
 export const NavigationBar = () => (
 	<Navbar>
 		<Navbar.Header>
-			<Navbar.Brand>Neuron</Navbar.Brand>
+			<Navbar.Brand><a href="/">Neuron</a></Navbar.Brand>
 		</Navbar.Header>
 		<Nav pullRight={true}>
 			<GetPageViewer>
