@@ -6,6 +6,8 @@ import { EnsembleReader } from "../ensemble/EnsembleReader";
 import { EnsembleRelationCoordinatorReader } from "../ensemble/EnsembleRelationCoordinatorReader";
 import { RemoveEnsemble } from "../ensemble/removeEnsemble";
 import { UserReader } from "../user/UserReader";
+import { UserService } from "../user/UserService";
+import { EnsembleService } from "../ensemble/EnsembleService";
 
 export class Context {
 	public readonly createEnsembleForUser: CreateEnsembleForUser;
@@ -14,6 +16,8 @@ export class Context {
 	public readonly createAdminUser: CreateAdminUser;
 	public readonly checkUserLogin: CheckUserLogin;
 	public readonly ensembleRelationCoordinatorReader: EnsembleRelationCoordinatorReader;
+	public readonly ensembleService: EnsembleService;
+	public readonly userService: UserService;
 
 	public readonly ensembleReader: EnsembleReader;
 	public readonly userReader: UserReader;
@@ -23,22 +27,15 @@ export class Context {
 	constructor(args: {
 		session: any;
 		userReader: UserReader;
-		createAdminUser: CreateAdminUser;
-		checkUserLogin: CheckUserLogin;
-		createEnsembleForUser: CreateEnsembleForUser;
-		createEnsembleToEnsemble: CreateEnsembleToEnsemble;
 		ensembleReader: EnsembleReader;
-		ensembleRelationCoordinatorReader: EnsembleRelationCoordinatorReader;
+		userService: UserService;
+		ensembleService: EnsembleService;
 	}) {
 		this.session = args.session;
 		this.userReader = args.userReader;
-		this.createAdminUser = args.createAdminUser;
-		this.checkUserLogin = args.checkUserLogin;
-		this.createEnsembleForUser = args.createEnsembleForUser;
-		this.createEnsembleToEnsemble = args.createEnsembleToEnsemble;
 		this.ensembleReader = args.ensembleReader;
-		this.ensembleRelationCoordinatorReader =
-			args.ensembleRelationCoordinatorReader;
+		this.userService = args.userService;
+		this.ensembleService = args.ensembleService;
 	}
 
 	public setCurrentUserId(userId: string) {

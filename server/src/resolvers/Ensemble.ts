@@ -27,7 +27,9 @@ export const EnsembleObject = {
 
 export const Query = {
 	ensemble: async (root, args: EnsembleQueryArgs, context: Context) => {
-		const ensemble = await context.ensembleReader.fetchEnsemble(args.ensembleId);
+		const ensemble = await context.ensembleReader.fetchEnsemble(
+			args.ensembleId
+		);
 
 		return ensemble;
 	},
@@ -52,13 +54,24 @@ export const Mutation = {
 		args: CreateEnsembleForUserMutationArgs,
 		context: Context
 	) => {
-		const res = await context.createEnsembleForUser({
+		const ensembleId = await context.ensembleService.createEnsemble({
 			name: args.name
 		});
 
+		if (!ensembleId) {
+			return {
+				success: false
+			};
+		}
+
+		await context.userService.addEnsembleForUser({
+			ensembleId: ensembleId,
+			userId: context.getCurrentUserId()
+		});
+
 		return {
-			success: res.success,
-			ensemble: res.ensemble
+			success: true,
+			ensemble: undefined
 		};
 	},
 	createEnsembleToEnsemble: async (
@@ -66,14 +79,13 @@ export const Mutation = {
 		args: CreateEnsembleToEnsembleMutationArgs,
 		context: Context
 	) => {
-		const res = await context.createEnsembleToEnsemble({
+		await context.ensembleService.createEnsemble({
 			name: args.name,
 			parentEnsembleId: args.parentEnsembleId
 		});
 
 		return {
-			ensemble: res.ensemble,
-			success: res.success
+			success: true
 		};
 	}
 };

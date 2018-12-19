@@ -9,21 +9,19 @@ export const Query = {
 
 export const Mutation = {
 	login: async (root, args: LoginMutationArgs, context: Context) => {
-		const res = await context.checkUserLogin({
+		const user = await context.userService.checkUserLogin({
 			userName: args.userName,
 			password: args.password
 		});
 
-		if (!res.success) {
+		if (!user) {
 			return {
 				success: false,
 				viewer: {}
 			};
 		}
 
-		if (res.user) {
-			context.setCurrentUserId(res.user.id);
-		}
+		context.setCurrentUserId(user.id);
 
 		return {
 			success: true,
@@ -35,15 +33,15 @@ export const Mutation = {
 			return {
 				success: false,
 				viewer: {}
-			}
+			};
 		}
-		
+
 		context.clearCurrentUserId();
 
 		return {
 			success: true,
 			viewer: {}
-		}
+		};
 	}
 };
 

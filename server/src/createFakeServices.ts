@@ -1,6 +1,4 @@
 import { DataStore } from "mockdatastore";
-import { EventStore } from "./eventstore/EventStore";
-import { IEventStore } from "./eventstore/IEventStore";
 import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
 import { MemoryEnsembleRelationCoordinator } from "./ensemble/MemoryEnsembleRelationCoordinator";
 import { MemoryEnsembleRelationCoordinatorReader } from "./ensemble/MemoryEnsembleRelationCoordinatorReader";
@@ -49,18 +47,7 @@ export const createFakeServices = async (args?: {
 	dataStore?: DataStore;
 	currentUserId?: string;
 }) => {
-	const eventStore = (args && args.eventStore) || new EventStore();
-
 	const dataStore = (args && args.dataStore) || new DataStore({});
-
-	const userRepository = new MemoryUserRepository({
-		dataStore: dataStore
-	});
-
-	const getCurrentUser = createGetCurrentUser({
-		currentUserId: args && args.currentUserId,
-		userRepository: userRepository
-	});
 
 	const ensembleRepository = new MemoryEnsembleRepository({
 		dataStore: dataStore
@@ -82,52 +69,7 @@ export const createFakeServices = async (args?: {
 		dataStore: dataStore
 	});
 
-	const uidGenerator = new UidGenerator();
-
-	const createAdminUser = createCreateAdminUser({
-		uidGenerator: uidGenerator,
-		userRepository: userRepository
-	});
-
-	const checkUserLogin = createCheckUserLogin({
-		userRepository: userRepository
-	});
-
-	const createEnsembleForUser = createCreateEnsembleForUser({
-		ensembleRepository: ensembleRepository,
-		eventStore: eventStore,
-		uidGenerator: uidGenerator,
-		userEnsemblePermissions: userEnsemblePermissions,
-		getCurrentUser: getCurrentUser,
-		ensembleRelationCoordinator: ensembleRelationCoordinator
-	});
-
-	const createEnsembleToEnsemble = createCreateEnsembleToEnsemble({
-		ensembleRepository: ensembleRepository,
-		eventStore: eventStore,
-		ensembleRelationCoordinator: ensembleRelationCoordinator,
-		getCurrentUser: getCurrentUser,
-		uidGenerator: uidGenerator
-	});
-
-	const addEnsembleToEnsemble = createAddEnsembleToEnsemble({
-		ensembleRepository: ensembleRepository
-	});
-
-	const ensembleRelationCoordinatorReader = new MemoryEnsembleRelationCoordinatorReader(
-		{
-			dataStore: dataStore
-		}
-	);
-
 	return {
-		createAdminUser,
-		checkUserLogin,
-		userReader,
-		createEnsembleForUser,
-		createEnsembleToEnsemble,
-		addEnsembleToEnsemble,
-		ensembleReader,
-		ensembleRelationCoordinatorReader
+		ensembleReader
 	};
 };

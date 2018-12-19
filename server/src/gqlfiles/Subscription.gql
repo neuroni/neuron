@@ -1,0 +1,6 @@
+
+type Subscription {
+    ensembleCreatedForUser: Ensemble
+    ensembleAddedForUser: Ensemble
+    ensembleObjectCreated(ensembleId: ID!): EnsembleObject
+}

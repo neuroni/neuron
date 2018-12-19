@@ -34,7 +34,7 @@ export const createCreateAdminUser = ({
 		isAdmin: true
 	});
 
-	await adminUser.changePassword(args.password);
+	const adminUser = await adminUser.changePassword(args.password);
 
 	await userRepository.save(adminUser);
 

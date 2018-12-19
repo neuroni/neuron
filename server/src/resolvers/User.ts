@@ -17,12 +17,21 @@ export const Mutation = {
 		args: CreateAdminUserMutationArgs,
 		context: Context
 	) => {
-		const user = await context.createAdminUser({
+		const currentAdminUser = await context.userReader.fetchAdminUser();
+
+		if (currentAdminUser) {
+			return {
+				success: false,
+				viewer: {}
+			};
+		}
+
+		await context.userService.createAdminUser({
 			password: args.password
 		});
 
 		return {
-			success: user.success,
+			success: true,
 			viewer: {}
 		};
 	}

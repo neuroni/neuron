@@ -3,6 +3,7 @@ import { GetEnsemblePageEnsemble } from "src/ensemble/GetEnsemblePageEnsemble";
 import { match } from "react-router";
 import { Grid } from "react-bootstrap";
 import { EnsembleObjectList } from "src/ensemble/EnsembleObjectList";
+import { CreateEnsembleObjectSelectForm } from "src/ensemble/CreateEnsembleObjectSelectForm";
 
 interface InputProps {
 	match: match<{
@@ -20,6 +21,7 @@ export const EnsemblePage = (args: InputProps) => <div><GetEnsemblePageEnsemble 
 		console.log("data", props.data.ensemble && props.data.ensemble.ensembleObjects);
 
 		return <Grid>
+			<CreateEnsembleObjectSelectForm />
 			{props.data.ensemble && <EnsembleObjectList ensembleObjects={props.data.ensemble.ensembleObjects} />}
 		</Grid>
 	}}

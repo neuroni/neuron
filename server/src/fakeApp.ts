@@ -3,85 +3,108 @@ import * as cors from "cors";
 import * as express from "express";
 import * as session from "express-session";
 
-import { pathExists } from "fs-extra";
-
 import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
 
-import { createFakeServices } from "./createFakeServices";
 import { schema } from "./schema";
-import { EventStore } from "./eventstore/EventStore";
-import { DataStore } from "mockdatastore";
+import { EventStorageFile } from "./eventsourcing/EventStorageFile";
+import { MockEventStore } from "./eventsourcing/MockEventStore";
+import { MemoryUserReader } from "./user/MemoryUserReader";
+import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
+import { DomainUserService } from "./user/DomainUserService";
+import { DomainEnsembleService } from "./ensemble/DomainEnsembleService";
+import { UserRepository } from "./user/UserRepository";
+import { UserFactory } from "./user/UserFactory";
+import { UidGenerator } from "./common/UidGenerator";
+import { EventSourcedObjectRepository } from "./eventsourcing/EventSourcedObjectRepository";
 
-export const main = async () => {
-	const app = express();
+const app = express();
 
-	app.use(bodyParser.urlencoded({ extended: true }));
-	app.use(
-		bodyParser.json({
-			limit: "5mb"
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+	bodyParser.json({
+		limit: "5mb"
+	})
+);
+app.use(
+	cors({
+		origin: true,
+		credentials: true
+	})
+);
+app.use(
+	session({
+		secret: "keyboard cat",
+		resave: false,
+		saveUninitialized: true,
+		cookie: { secure: false }
+	})
+);
+
+const uidGenerator = new UidGenerator();
+
+const userFactory = new UserFactory({
+	uidGenerator: uidGenerator
+});
+
+const eventStorageFile = new EventStorageFile({
+	path: "storedevents.json"
+});
+
+const eventStore = new MockEventStore({
+	eventStorage: eventStorageFile
+});
+
+const eventSourcedObjectRepository = new EventSourcedObjectRepository({
+	eventStore: eventStore
+});
+
+const userReader = new MemoryUserReader({
+	eventStore: eventStore
+});
+
+const ensembleReader = new MemoryEnsembleReader({
+	eventStore: eventStore
+});
+
+const userRepository = new UserRepository({
+	userFactory: userFactory,
+	userReader: userReader
+});
+
+const userService = new DomainUserService({
+	userFactory: userFactory,
+	userRepository: userRepository,
+	eventSourcedObjectRepository: eventSourcedObjectRepository
+});
+
+const ensembleService = new DomainEnsembleService();
+
+app.use("/graphql", async (req, res, next) => {
+	graphqlExpress({
+		schema,
+		context: new Context({
+			session: req.session,
+			userReader: userReader,
+			ensembleReader: ensembleReader,
+			userService: userService,
+			ensembleService: ensembleService
 		})
-	);
+	})(req, res, next);
+});
 
-	app.use(
-		cors({
-			origin: true,
-			credentials: true
-		})
-	);
+app.use(
+	"/graphiql",
+	graphiqlExpress({
+		endpointURL: "/graphql"
+	})
+);
 
-	app.use(
-		session({
-			secret: "keyboard cat",
-			resave: false,
-			saveUninitialized: true,
-			cookie: { secure: false }
-		})
-	);
+app.get("/*", (req, res) => {
+	res.end("kikkukiusaus");
+});
 
-	const dataStore = new DataStore({});
-
-	if (await pathExists("database.json")) {
-		await dataStore.load("database.json");
-	}
-
-	app.use("/graphql", async (req, res, next) => {
-		const services = await createFakeServices({
-			dataStore: dataStore,
-			currentUserId: req.session && req.session.currentUserId
-		});
-
-		graphqlExpress({
-			schema,
-			context: new Context({
-				session: req.session,
-				createAdminUser: services.createAdminUser,
-				userReader: services.userReader,
-				checkUserLogin: services.checkUserLogin,
-				createEnsembleForUser: services.createEnsembleForUser,
-				createEnsembleToEnsemble: services.createEnsembleToEnsemble,
-				ensembleReader: services.ensembleReader,
-				ensembleRelationCoordinatorReader:
-					services.ensembleRelationCoordinatorReader
-			})
-		})(req, res, next);
-	});
-
-	app.use(
-		"/graphiql",
-		graphiqlExpress({
-			endpointURL: "/graphql"
-		})
-	);
-
-	app.get("/*", (req, res) => {
-		res.end("kikkukiusaus");
-	});
-
-	app.listen(8897, () => {
-		console.log("Listening port " + 8897);
-	});
-};
-
-main();
+app.listen(8897, () => {
+	console.log("Listening port " + 8897);
+});
