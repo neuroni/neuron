@@ -1,7 +1,8 @@
-import { SavedEvent } from "./SavedEvent";
 import { appendFile, createReadStream } from "fs-extra";
+
 import { EventStorage } from "./EventStorage";
 import { ObjectParser } from "../common/ObjectParser";
+import { SavedEvent } from "./SavedEvent";
 import { resolve } from "dns";
 
 export class EventStorageFile implements EventStorage {
@@ -11,16 +12,18 @@ export class EventStorageFile implements EventStorage {
 		this.path = args.path;
 	}
 
-	public [Symbol.asyncIterator]read() {
+	public read() {
 		const queue: SavedEvent[] = [];
 		let finished = false;
 
 		let nextResolve;
 		let nextPromiseResolved = false;
 
-		let nextPromise = new Promise((resolve, reject) =>  {
-			nextResolve = resolve;
-		})
+		let nextPromise = new Promise<IteratorResult<SavedEvent>>(
+			(resolve, reject) => {
+				nextResolve = resolve;
+			}
+		);
 
 		const readStream = createReadStream(this.path, {
 			encoding: "utf8"
@@ -30,38 +33,48 @@ export class EventStorageFile implements EventStorage {
 			if (nextPromiseResolved) {
 				queue.push(obj);
 			}
-			
+
 			nextResolve(obj);
 			nextPromiseResolved = true;
 		});
 
 		readStream.on("data", b => objectParser.pushChunck(b));
-		readStream.on("end", () => finished = true)
+		readStream.on("end", () => (finished = true));
 
 		return {
-			next: () => {
-				const currentPromise = nextPromise;
+			[Symbol.asyncIterator]() {
+				return {
+					next: () => {
+						const currentPromise = nextPromise;
 
-				nextPromise = new Promise((resolve, reject) =>  {
-					nextResolve = resolve;
-				})
+						nextPromise = new Promise((resolve, reject) => {
+							nextResolve = resolve;
+						});
 
-				const nextEvent = queue.pop();
+						const nextEvent = queue.pop();
 
-				if (nextEvent) {
-					nextResolve(nextEvent);
-					nextPromiseResolved = true;
-				}
+						if (nextEvent) {
+							nextResolve({
+								value: nextEvent
+							});
+							nextPromiseResolved = true;
+						}
 
-				if (!nextEvent) {
-					if (finished) {
-						nextResolve()
+						if (!nextEvent) {
+							if (finished) {
+								nextResolve({
+									value: undefined
+								});
+								return currentPromise;
+							}
+							nextPromiseResolved = false;
+						}
+
+						return currentPromise;
 					}
-				}
-
-				return currentPromise;
+				};
 			}
-		}
+		};
 	}
 
 	async addEvent(event: SavedEvent | SavedEvent[]) {
