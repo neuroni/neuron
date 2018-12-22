@@ -3,16 +3,18 @@ import { EventTrunk } from "./EventTrunk";
 export abstract class EventSourcedObject {
 	private aggregateId: string;
 	private aggregateName: string;
-	private aggregateVersion: number;
+	private currentAggregateSchemaVersion: number;
 	private uncommittedEvents: EventTrunk[];
 
 	constructor(args: {
 		aggregateId: string;
 		aggregateName: string;
-		aggregateVersion: number;
+		currentAggregateSchemaVersion: number;
 		events?: EventTrunk[];
 	}) {
 		this.aggregateId = args.aggregateId;
+		this.aggregateName = args.aggregateName;
+		this.currentAggregateSchemaVersion = args.currentAggregateSchemaVersion;
 		this.uncommittedEvents = args.events || [];
 	}
 
@@ -28,11 +30,9 @@ export abstract class EventSourcedObject {
 		this.uncommittedEvents.push({
 			aggregateId: this.aggregateId,
 			aggregateName: this.aggregateName,
-			aggregateVersion: this.aggregateVersion,
+			currentAggregateSchemaVersion: this.currentAggregateSchemaVersion,
 			eventName: args.eventName,
 			data: args.data
 		});
 	}
-
-
 }

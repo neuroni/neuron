@@ -1,9 +1,9 @@
-import { EnsembleObject } from "./EnsembleObject";
+import { CurrentEnsembleAggregateVersion } from "./CurrentEnsembleAggregateVersion";
+import { EnsembleAggregateName } from "./EnsembleAggregateName";
 import { EnsembleEvents } from "./EnsembleEvents";
+import { EnsembleObject } from "./EnsembleObject";
 import { EventSourcedObject } from "../eventsourcing/EventSourcedObject";
 import { EventTrunk } from "../eventsourcing/EventTrunk";
-import { EnsembleAggregateName } from "./EnsembleAggregateName";
-import { CurrentEnsembleAggregateVersion } from "./CurrentEnsembleAggregateVersion";
 
 export class Ensemble extends EventSourcedObject implements EnsembleObject {
 	private id: string;
@@ -13,7 +13,7 @@ export class Ensemble extends EventSourcedObject implements EnsembleObject {
 		super({
 			aggregateId: args.id,
 			aggregateName: EnsembleAggregateName,
-			aggregateVersion: CurrentEnsembleAggregateVersion,
+			currentAggregateSchemaVersion: CurrentEnsembleAggregateVersion,
 			events: args.events
 		});
 

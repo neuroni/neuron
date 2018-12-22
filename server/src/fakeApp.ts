@@ -6,18 +6,20 @@ import * as session from "express-session";
 import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
-
-import { schema } from "./schema";
-import { EventStorageFile } from "./eventsourcing/EventStorageFile";
-import { MockEventStore } from "./eventsourcing/MockEventStore";
-import { MemoryUserReader } from "./user/MemoryUserReader";
-import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
-import { DomainUserService } from "./user/DomainUserService";
 import { DomainEnsembleService } from "./ensemble/DomainEnsembleService";
-import { UserRepository } from "./user/UserRepository";
-import { UserFactory } from "./user/UserFactory";
-import { UidGenerator } from "./common/UidGenerator";
+import { DomainUserService } from "./user/DomainUserService";
+import { EnsembleFactory } from "./ensemble/EnsembleFactory";
+import { EnsembleRepository } from "./ensemble/EnsembleRepository";
 import { EventSourcedObjectRepository } from "./eventsourcing/EventSourcedObjectRepository";
+import { EventStorageFile } from "./eventsourcing/EventStorageFile";
+import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
+import { MemoryEnsembleRepository } from "./ensemble/MemoryEnsembleRepository";
+import { MemoryUserReader } from "./user/MemoryUserReader";
+import { MockEventStore } from "./eventsourcing/MockEventStore";
+import { UidGenerator } from "./common/UidGenerator";
+import { UserFactory } from "./user/UserFactory";
+import { UserRepository } from "./user/UserRepository";
+import { schema } from "./schema";
 
 const app = express();
 
@@ -48,6 +50,8 @@ const userFactory = new UserFactory({
 	uidGenerator: uidGenerator
 });
 
+const ensembleFactory = new EnsembleFactory();
+
 const eventStorageFile = new EventStorageFile({
 	path: "storedevents.json"
 });
@@ -73,13 +77,24 @@ const userRepository = new UserRepository({
 	userReader: userReader
 });
 
+const ensembleRepository = new EnsembleRepository({
+	ensembleFactory: ensembleFactory,
+	ensembleReader: ensembleReader
+});
+
 const userService = new DomainUserService({
 	userFactory: userFactory,
 	userRepository: userRepository,
 	eventSourcedObjectRepository: eventSourcedObjectRepository
 });
 
-const ensembleService = new DomainEnsembleService();
+const ensembleService = new DomainEnsembleService({
+	ensembleFactory: ensembleFactory,
+	ensembleRepository: ensembleRepository,
+	eventSourcedObjectRepository: eventSourcedObjectRepository
+});
+
+eventStore.replayEvents();
 
 app.use("/graphql", async (req, res, next) => {
 	graphqlExpress({

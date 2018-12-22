@@ -30,7 +30,13 @@ export class UserRepository {
 		return this.userFactory.regenerateOld(user);
 	}
 
-	fetchUserByName(userName: string) {
-		return undefined;
+	async fetchUserByName(userName: string) {
+		const user = await this.userReader.fetchUserByUserName(userName);
+
+		if (!user) {
+			return undefined;
+		}
+
+		return this.userFactory.regenerateOld(user);
 	}
 }

@@ -1,8 +1,8 @@
-import { Ensemble } from "./Ensemble";
-import { UidGenerator } from "../common/UidGenerator";
-import { EnsembleEvents } from "./EnsembleEvents";
-import { EnsembleAggregateName } from "./EnsembleAggregateName";
 import { CurrentEnsembleAggregateVersion } from "./CurrentEnsembleAggregateVersion";
+import { Ensemble } from "./Ensemble";
+import { EnsembleAggregateName } from "./EnsembleAggregateName";
+import { EnsembleEvents } from "./EnsembleEvents";
+import { UidGenerator } from "../common/UidGenerator";
 
 export class EnsembleFactory {
 	private uidgenerator: UidGenerator;
@@ -17,7 +17,7 @@ export class EnsembleFactory {
 				{
 					aggregateId: id,
 					aggregateName: EnsembleAggregateName,
-					aggregateVersion: CurrentEnsembleAggregateVersion,
+					currentAggregateSchemaVersion: CurrentEnsembleAggregateVersion,
 					eventName: EnsembleEvents.ENSEMBLE_CREATED,
 					data: {
 						name: args.name

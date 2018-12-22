@@ -1,11 +1,8 @@
-import { User } from "./User";
-import { UidGenerator } from "../common/UidGenerator";
-import { UserAggregateName } from "./UserAggregateName";
 import { CurrentUserAggregateSchemaVersion } from "./CurrentUserAggregateSchemaVersion";
-import {
-	UserCreatedEventPayload,
-	UserCreatedEventData
-} from "./UserCreatedEventPayload";
+import { UidGenerator } from "../common/UidGenerator";
+import { User } from "./User";
+import { UserAggregateName } from "./UserAggregateName";
+import { UserCreatedEventData } from "./UserCreatedEventPayload";
 import { UserEvents } from "./UserEvents";
 
 export class UserFactory {
@@ -33,7 +30,7 @@ export class UserFactory {
 				{
 					aggregateId: aggregateId,
 					aggregateName: UserAggregateName,
-					aggregateVersion: CurrentUserAggregateSchemaVersion,
+					currentAggregateSchemaVersion: CurrentUserAggregateSchemaVersion,
 					eventName: UserEvents.USER_CREATED,
 					data: data
 				}

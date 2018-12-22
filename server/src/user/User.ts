@@ -1,10 +1,11 @@
 import { compare, hash } from "bcrypt";
-import { EventSourcedObject } from "../eventsourcing/EventSourcedObject";
-import { Ensemble } from "../ensemble/Ensemble";
-import { UserEvents } from "./UserEvents";
-import { EventTrunk } from "../eventsourcing/EventTrunk";
+
 import { CurrentUserAggregateSchemaVersion } from "./CurrentUserAggregateSchemaVersion";
+import { Ensemble } from "../ensemble/Ensemble";
+import { EventSourcedObject } from "../eventsourcing/EventSourcedObject";
+import { EventTrunk } from "../eventsourcing/EventTrunk";
 import { UserAggregateName } from "./UserAggregateName";
+import { UserEvents } from "./UserEvents";
 
 export class User extends EventSourcedObject {
 	private id: string;
@@ -23,7 +24,7 @@ export class User extends EventSourcedObject {
 		super({
 			aggregateId: args.id,
 			aggregateName: UserAggregateName,
-			aggregateVersion: CurrentUserAggregateSchemaVersion,
+			currentAggregateSchemaVersion: CurrentUserAggregateSchemaVersion,
 			events: args.events || []
 		});
 
@@ -61,11 +62,11 @@ export class User extends EventSourcedObject {
 		return success;
 	}
 
-	public addEnsemble(ensemble: Ensemble) {
+	public addEnsemble(ensembleId: string) {
 		this.insertUncommittedEvent({
 			eventName: UserEvents.USER_ADD_ENSEMBLE,
 			data: {
-				ensembleId: ensemble.getId()
+				ensembleId: ensembleId
 			}
 		});
 	}

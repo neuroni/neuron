@@ -2,6 +2,7 @@
 	"name": "neuron-server",
 	"scripts": {
 		"start": "tsc-watch -p tsconfig.json --onSuccess \"node ./dist/fakeApp.js\"",
+		"testi": "tsc -p tsconfig.json",
 		"build": "tsc -p tsconfig.json",
 		"build-schemadef": "node scripts/build-schemadef.js"
 	},

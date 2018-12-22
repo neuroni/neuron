@@ -1,6 +1,6 @@
 import { EventTrunk } from "./EventTrunk";
 
 export interface SavedEvent extends EventTrunk {
-	version: number;
+	aggregateVersion: number;
 	eventTime: Date;
 }

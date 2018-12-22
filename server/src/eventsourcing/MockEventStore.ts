@@ -1,7 +1,8 @@
-import { SavedEvent } from "./SavedEvent";
-import { EventStore, SubscribeToEventsOptions, OnNewEvent } from "./EventStore";
-import { EventTrunk } from "./EventTrunk";
+import { EventStore, OnNewEvent, SubscribeToEventsOptions } from "./EventStore";
+
 import { EventStorage } from "./EventStorage";
+import { EventTrunk } from "./EventTrunk";
+import { SavedEvent } from "./SavedEvent";
 
 export type AggregateRow = {
 	columnName: string;
@@ -69,17 +70,26 @@ export class MockEventStore implements EventStore {
 		const savedEvent: SavedEvent = {
 			aggregateId: newEvent.aggregateId,
 			aggregateName: newEvent.aggregateName,
-			aggregateVersion: newEvent.aggregateVersion,
+			currentAggregateSchemaVersion:
+				newEvent.currentAggregateSchemaVersion,
 			eventName: newEvent.eventName,
 			data: newEvent.data,
-			version: nextVersion,
+			aggregateVersion: nextVersion,
 			eventTime: new Date()
 		};
 
 		this.uncommittedEvents.push(savedEvent);
 	}
 
-	replayEvents(args?: {}) {}
+	replayEvents(args?: {}) {
+		this.eventStorage.read(newEvent => {
+			this.currentVersions.set(
+				newEvent.aggregateId,
+				newEvent.aggregateVersion
+			);
+			this.notifySubScribers(newEvent);
+		});
+	}
 
 	async commit() {
 		await this.eventStorage.addEvent(this.uncommittedEvents);

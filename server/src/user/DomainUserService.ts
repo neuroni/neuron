@@ -1,8 +1,9 @@
-import { UserService } from "./UserService";
-import { UserRepository } from "./UserRepository";
-import { UserFactory } from "./UserFactory";
-import { hashPassword } from "../common/Crypto";
 import { EventSourcedObjectRepository } from "../eventsourcing/EventSourcedObjectRepository";
+import { UserDto } from "./UserDto";
+import { UserFactory } from "./UserFactory";
+import { UserRepository } from "./UserRepository";
+import { UserService } from "./UserService";
+import { hashPassword } from "../common/Crypto";
 
 export class DomainUserService implements UserService {
 	private userRepository: UserRepository;
@@ -41,7 +42,24 @@ export class DomainUserService implements UserService {
 
 		return newAdminUser.getId();
 	}
-	async checkUserLogin(args) {
-		return undefined;
+	async checkUserLogin(args: {
+		userName: string;
+		password: string;
+	}): Promise<UserDto | undefined> {
+		const user = await this.userRepository.fetchUserByName(args.userName);
+
+		if (!user) {
+			return undefined;
+		}
+
+		if (!(await user.comparePassword(args.password))) {
+			return undefined;
+		}
+
+		return {
+			id: user.getId(),
+			isAdmin: user.getIsAdmin(),
+			name: user.getName()
+		};
 	}
 }

@@ -1,20 +1,12 @@
-import { CheckUserLogin } from "../user/checkUserLogin";
-import { CreateAdminUser } from "../user/createAdminUser";
-import { CreateEnsembleForUser } from "../ensemble/createEnsembleForUser";
-import { CreateEnsembleToEnsemble } from "../ensemble/createEnsembleToEnsemble";
 import { EnsembleReader } from "../ensemble/EnsembleReader";
 import { EnsembleRelationCoordinatorReader } from "../ensemble/EnsembleRelationCoordinatorReader";
+import { EnsembleService } from "../ensemble/EnsembleService";
 import { RemoveEnsemble } from "../ensemble/removeEnsemble";
 import { UserReader } from "../user/UserReader";
 import { UserService } from "../user/UserService";
-import { EnsembleService } from "../ensemble/EnsembleService";
 
 export class Context {
-	public readonly createEnsembleForUser: CreateEnsembleForUser;
-	public readonly createEnsembleToEnsemble: CreateEnsembleToEnsemble;
 	public readonly removeEnsemble: RemoveEnsemble;
-	public readonly createAdminUser: CreateAdminUser;
-	public readonly checkUserLogin: CheckUserLogin;
 	public readonly ensembleRelationCoordinatorReader: EnsembleRelationCoordinatorReader;
 	public readonly ensembleService: EnsembleService;
 	public readonly userService: UserService;

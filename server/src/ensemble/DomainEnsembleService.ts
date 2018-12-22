@@ -1,12 +1,22 @@
 import { EnsembleFactory } from "./EnsembleFactory";
-import { EventSourcedObjectRepository } from "../eventsourcing/EventSourcedObjectRepository";
 import { EnsembleRepository } from "./EnsembleRepository";
 import { EnsembleService } from "./EnsembleService";
+import { EventSourcedObjectRepository } from "../eventsourcing/EventSourcedObjectRepository";
 
 export class DomainEnsembleService implements EnsembleService {
 	ensembleFactory: EnsembleFactory;
 	ensembleRepository: EnsembleRepository;
 	eventSoucedObjectRepository: EventSourcedObjectRepository;
+
+	constructor(args: {
+		ensembleFactory: EnsembleFactory;
+		ensembleRepository: EnsembleRepository;
+		eventSourcedObjectRepository: EventSourcedObjectRepository;
+	}) {
+		this.ensembleFactory = args.ensembleFactory;
+		this.ensembleRepository = args.ensembleRepository;
+		this.eventSoucedObjectRepository = args.eventSourcedObjectRepository;
+	}
 
 	async createEnsemble(args: { name: string; parentEnsembleId?: string }) {
 		const ensemble = this.ensembleFactory.createNew({

@@ -1,17 +1,18 @@
-import { UserReader } from "./UserReader";
 import { EventStore } from "../eventsourcing/EventStore";
+import { MemoryUserReaderState } from "./MemoryUserReaderState";
 import { SavedEvent } from "../eventsourcing/SavedEvent";
 import { UserAggregateName } from "./UserAggregateName";
-import { UserEvents } from "./UserEvents";
 import { UserCreatedEventPayload } from "./UserCreatedEventPayload";
-import { MemoryUserReaderState } from "./MemoryUserReaderState";
+import { UserEvents } from "./UserEvents";
+import { UserReader } from "./UserReader";
 
 export class MemoryUserReader implements UserReader {
 	private state: MemoryUserReaderState;
 
 	constructor(args: { eventStore: EventStore }) {
 		this.state = {
-			userById: {}
+			userById: {},
+			userByName: {}
 		};
 
 		args.eventStore.subscribeToEvents(
@@ -55,6 +56,7 @@ export class MemoryUserReader implements UserReader {
 		};
 
 		this.state.userById[user.id] = user;
+		this.state.userByName[user.name] = user;
 
 		if (this.state.adminUser || !user.isAdmin) {
 			return;
@@ -77,5 +79,13 @@ export class MemoryUserReader implements UserReader {
 
 	async fetchAdminUser() {
 		return this.state.adminUser;
+	}
+
+	async fetchUserByUserName(userName: string) {
+		return this.state.userByName[userName];
+	}
+
+	async fetchUserEnsembleIds(userId: string) {
+		return [];
 	}
 }

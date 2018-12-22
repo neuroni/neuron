@@ -5,3 +5,4 @@ dist
 database.json
 schema.gql
 schema.json
+storedEvents.json
