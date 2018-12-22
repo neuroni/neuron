@@ -13,7 +13,6 @@ import { EnsembleRepository } from "./ensemble/EnsembleRepository";
 import { EventSourcedObjectRepository } from "./eventsourcing/EventSourcedObjectRepository";
 import { EventStorageFile } from "./eventsourcing/EventStorageFile";
 import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
-import { MemoryEnsembleRepository } from "./ensemble/MemoryEnsembleRepository";
 import { MemoryUserReader } from "./user/MemoryUserReader";
 import { MockEventStore } from "./eventsourcing/MockEventStore";
 import { UidGenerator } from "./common/UidGenerator";
@@ -50,7 +49,9 @@ const userFactory = new UserFactory({
 	uidGenerator: uidGenerator
 });
 
-const ensembleFactory = new EnsembleFactory();
+const ensembleFactory = new EnsembleFactory({
+	uidgenerator: uidGenerator
+});
 
 const eventStorageFile = new EventStorageFile({
 	path: "storedevents.json"

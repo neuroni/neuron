@@ -1,13 +1,14 @@
-import { EnsembleReader } from "./EnsembleReader";
-import { MemoryEnsembleReaderState } from "./MemoryEnsembleReaderState";
-import { EventStore } from "../eventsourcing/EventStore";
-import { SavedEvent } from "../eventsourcing/SavedEvent";
 import { EnsembleAggregateName } from "./EnsembleAggregateName";
-import { EnsembleEvents } from "./EnsembleEvents";
-import { EnsembleObjectCreatedEventPayload } from "./EnsembleObjectCreatedEventPayload";
-import { EnsembleObjectAddedEventPayload } from "./EnsembleObjectAddedEventPayload";
-import { EnsembleUpdatedEventPayload } from "./EnsembleUpdatedEventPayload";
 import { EnsembleCreatedEventPayload } from "./EnsembleCreatedEventPayload";
+import { EnsembleDto } from "./EnsembleDto";
+import { EnsembleEvents } from "./EnsembleEvents";
+import { EnsembleObjectAddedEventPayload } from "./EnsembleObjectAddedEventPayload";
+import { EnsembleObjectCreatedEventPayload } from "./EnsembleObjectCreatedEventPayload";
+import { EnsembleReader } from "./EnsembleReader";
+import { EnsembleUpdatedEventPayload } from "./EnsembleUpdatedEventPayload";
+import { EventStore } from "../eventsourcing/EventStore";
+import { MemoryEnsembleReaderState } from "./MemoryEnsembleReaderState";
+import { SavedEvent } from "../eventsourcing/SavedEvent";
 
 export class MemoryEnsembleReader implements EnsembleReader {
 	private state: MemoryEnsembleReaderState;
@@ -29,6 +30,7 @@ export class MemoryEnsembleReader implements EnsembleReader {
 	private handleEvent(newEvent: SavedEvent) {
 		switch (newEvent.eventName) {
 			case EnsembleEvents.ENSEMBLE_CREATED:
+				this.handleEnsembeCreated(newEvent);
 				break;
 			case EnsembleEvents.ENSEMBLE_OBJECT_ADDED:
 				this.handleEnsembleObjectAdded(newEvent);
@@ -60,7 +62,24 @@ export class MemoryEnsembleReader implements EnsembleReader {
 
 	private handleEnsembleObjectCreated(
 		newEvent: EnsembleObjectCreatedEventPayload
-	) {}
+	) {
+		let ensembleEnsembleObjects = this.state.ensembleObjectsByEnsembleId[
+			newEvent.aggregateId
+		];
+
+		if (!ensembleEnsembleObjects) {
+			ensembleEnsembleObjects = [];
+			this.state.ensembleObjectsByEnsembleId[
+				newEvent.aggregateId
+			] = ensembleEnsembleObjects;
+		}
+
+		ensembleEnsembleObjects.push({
+			id: newEvent.data.id,
+			name: newEvent.data.name,
+			type: newEvent.data.type
+		});
+	}
 
 	private handleEnsembleObjectAdded(
 		newEvent: EnsembleObjectAddedEventPayload
@@ -73,10 +92,21 @@ export class MemoryEnsembleReader implements EnsembleReader {
 	}
 
 	async fetchEnsembleEnsembleObjects(ensembleId: string) {
-		return this.state.ensembleObjectsByEnsembleId[ensembleId];
+		return this.state.ensembleObjectsByEnsembleId[ensembleId] || [];
 	}
 
 	async fetchEnsemblesByIds(ensembleIds: string[]) {
-		return ensembleIds.map(p => this.state.ensembleById[p]);
+		const ensembles: EnsembleDto[] = [];
+
+		ensembleIds.forEach(p => {
+			const e = this.state.ensembleById[p];
+			if (!e) {
+				return;
+			}
+
+			ensembles.push(e);
+		});
+
+		return ensembles;
 	}
 }

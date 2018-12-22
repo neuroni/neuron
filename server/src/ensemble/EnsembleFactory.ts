@@ -7,6 +7,10 @@ import { UidGenerator } from "../common/UidGenerator";
 export class EnsembleFactory {
 	private uidgenerator: UidGenerator;
 
+	constructor(args: { uidgenerator: UidGenerator }) {
+		this.uidgenerator = args.uidgenerator;
+	}
+
 	createNew(args: { name: string }) {
 		const id = this.uidgenerator.generateV4Guid();
 

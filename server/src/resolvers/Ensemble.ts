@@ -1,8 +1,6 @@
 import {
 	CreateEnsembleForUserMutationArgs,
-	CreateEnsembleForUserResponse,
-	CreateEnsembleToEnsembleMutationArgs,
-	CreateEnsembleToEnsembleResponse,
+	CreateEnsembleObjectMutationArgs,
 	EnsembleQueryArgs
 } from "../schemadef";
 
@@ -11,7 +9,7 @@ import { EnsembleDto } from "../ensemble/EnsembleDto";
 
 export const Ensemble = {
 	ensembleObjects: async (root: EnsembleDto, args, context: Context) => {
-		const ensembleObjects = await context.ensembleRelationCoordinatorReader.fetchEnsembleEnsembleObjects(
+		const ensembleObjects = await context.ensembleReader.fetchEnsembleEnsembleObjects(
 			root.id
 		);
 
@@ -54,6 +52,12 @@ export const Mutation = {
 		args: CreateEnsembleForUserMutationArgs,
 		context: Context
 	) => {
+		if (!context.getCurrentUserId()) {
+			return {
+				success: false
+			};
+		}
+
 		const ensembleId = await context.ensembleService.createEnsemble({
 			name: args.name
 		});
@@ -74,14 +78,34 @@ export const Mutation = {
 			ensemble: undefined
 		};
 	},
-	createEnsembleToEnsemble: async (
+	createEnsembleObject: async (
 		root,
-		args: CreateEnsembleToEnsembleMutationArgs,
+		args: CreateEnsembleObjectMutationArgs,
 		context: Context
 	) => {
-		await context.ensembleService.createEnsemble({
+		let id: undefined | string = undefined;
+
+		switch (args.type) {
+			case "Ensemble":
+				id = await context.ensembleService.createEnsemble({
+					name: args.name
+				});
+				break;
+			case "Note":
+				break;
+		}
+
+		if (!id) {
+			return {
+				success: false
+			};
+		}
+
+		await context.ensembleService.createEnsembleObject({
+			id: id,
 			name: args.name,
-			parentEnsembleId: args.parentEnsembleId
+			type: args.type,
+			ensembleId: args.parentEnsembleId
 		});
 
 		return {

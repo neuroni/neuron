@@ -1,6 +1,7 @@
 import { EventStore } from "../eventsourcing/EventStore";
 import { MemoryUserReaderState } from "./MemoryUserReaderState";
 import { SavedEvent } from "../eventsourcing/SavedEvent";
+import { UserAddEnsembleEventPayload } from "./UserAddEnsembleEventPayload";
 import { UserAggregateName } from "./UserAggregateName";
 import { UserCreatedEventPayload } from "./UserCreatedEventPayload";
 import { UserEvents } from "./UserEvents";
@@ -12,7 +13,8 @@ export class MemoryUserReader implements UserReader {
 	constructor(args: { eventStore: EventStore }) {
 		this.state = {
 			userById: {},
-			userByName: {}
+			userByName: {},
+			userEnsembles: {}
 		};
 
 		args.eventStore.subscribeToEvents(
@@ -29,8 +31,20 @@ export class MemoryUserReader implements UserReader {
 				this.handleUserCreated(newEvent);
 				break;
 			case UserEvents.USER_ADD_ENSEMBLE:
+				this.handleUserAddEnsemble(newEvent);
 				break;
 		}
+	}
+
+	private handleUserAddEnsemble(newEvent: UserAddEnsembleEventPayload) {
+		let ensembleIds = this.state.userEnsembles[newEvent.aggregateId];
+
+		if (!ensembleIds) {
+			ensembleIds = [];
+			this.state.userEnsembles[newEvent.aggregateId] = ensembleIds;
+		}
+
+		ensembleIds.push(newEvent.data.ensembleId);
 	}
 
 	private handleUserCreated(userCreatedEvent: UserCreatedEventPayload) {
@@ -86,6 +100,6 @@ export class MemoryUserReader implements UserReader {
 	}
 
 	async fetchUserEnsembleIds(userId: string) {
-		return [];
+		return this.state.userEnsembles[userId] || [];
 	}
 }

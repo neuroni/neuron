@@ -20,7 +20,20 @@ export class DomainUserService implements UserService {
 		this.eventSourcedObjectRepository = args.eventSourcedObjectRepository;
 	}
 
-	async addEnsembleForUser(args: { ensembleId: string; userId: string }) {}
+	async addEnsembleForUser(args: { ensembleId: string; userId: string }) {
+		const user = await this.userRepository.fetchUserById(args.userId);
+
+		if (!user) {
+			return;
+		}
+
+		user.addEnsemble(args.ensembleId);
+
+		this.eventSourcedObjectRepository.save(user);
+
+		await this.eventSourcedObjectRepository.commit();
+	}
+
 	async createAdminUser(args) {
 		const currentAdminUser = await this.userRepository.fetchAdmin();
 

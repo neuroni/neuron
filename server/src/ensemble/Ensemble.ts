@@ -44,10 +44,15 @@ export class Ensemble extends EventSourcedObject implements EnsembleObject {
 		return this.name;
 	}
 
-	public createEnsembleObject(args: { name: string; type: string }) {
+	public createEnsembleObject(args: {
+		id: string;
+		name: string;
+		type: string;
+	}) {
 		this.insertUncommittedEvent({
 			eventName: EnsembleEvents.ENSEMBLE_OBJECT_CREATED,
 			data: {
+				id: args.id,
 				name: args.name,
 				type: args.type
 			}
@@ -60,6 +65,13 @@ export class Ensemble extends EventSourcedObject implements EnsembleObject {
 			data: {
 				ensembleObjectId: args.ensembleObject.getId()
 			}
+		});
+	}
+
+	public remove() {
+		this.insertUncommittedEvent({
+			eventName: EnsembleEvents.ENSEMBLE_REMOVED,
+			data: {}
 		});
 	}
 }

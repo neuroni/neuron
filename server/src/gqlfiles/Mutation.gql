@@ -2,9 +2,10 @@ type Mutation {
 	createAdminUser(password: String!): CreateAdminUserResponse
 	login(userName: String!, password: String!): LoginResponse
 	createEnsembleForUser(name: String!): CreateEnsembleForUserResponse
-	createEnsembleToEnsemble(
+	createEnsembleObject(
 		name: String!
-		parentEnsembleId: String!
-	): CreateEnsembleToEnsembleResponse
+		parentEnsembleId: ID!
+		type: String!
+	): CreateEnsembleObjectResponse
 	logout: LogoutResponse
 }

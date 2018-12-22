@@ -1,6 +1,9 @@
 export interface EnsembleService {
-	createEnsemble(args: {
+	createEnsemble(args: { name: string }): Promise<string | undefined>;
+	createEnsembleObject(args: {
+		ensembleId: string;
 		name: string;
-		parentEnsembleId?: string;
-	}): Promise<string | undefined>;
+		id: string;
+		type: string;
+	}): Promise<void>;
 }

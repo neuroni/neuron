@@ -25,3 +25,8 @@ type CreateEnsembleToEnsembleResponse {
 	success: Boolean
 	ensemble: Ensemble
 }
+
+type CreateEnsembleObjectResponse {
+	success: Boolean
+	ensembleObject: EnsembleObject
+}

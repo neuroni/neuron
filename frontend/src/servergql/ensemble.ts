@@ -35,6 +35,20 @@ export const ENSEMBLE_PAGE_ENSEMBLE_QUERY = gql`
 			}
 		}
 	}
-
 `;
 
+export const CREATE_ENSEMBLE_OBJECT_MUTATION = gql`
+	mutation createEnsembleObject(
+		$name: String!
+		$parentEnsembleId: ID!
+		$type: String!
+	) {
+		createEnsembleObject(
+			name: $name
+			parentEnsembleId: $parentEnsembleId
+			type: $type
+		) {
+			success
+		}
+	}
+`;
