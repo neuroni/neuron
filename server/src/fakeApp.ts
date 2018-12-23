@@ -7,14 +7,18 @@ import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
 import { DomainEnsembleService } from "./ensemble/DomainEnsembleService";
+import { DomainNoteService } from "./note/DomainNoteService";
 import { DomainUserService } from "./user/DomainUserService";
 import { EnsembleFactory } from "./ensemble/EnsembleFactory";
 import { EnsembleRepository } from "./ensemble/EnsembleRepository";
 import { EventSourcedObjectRepository } from "./eventsourcing/EventSourcedObjectRepository";
 import { EventStorageFile } from "./eventsourcing/EventStorageFile";
 import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
+import { MemoryNoteReader } from "./note/MemoryNoteReader";
 import { MemoryUserReader } from "./user/MemoryUserReader";
 import { MockEventStore } from "./eventsourcing/MockEventStore";
+import { NoteFactory } from "./note/NoteFactory";
+import { NoteRepository } from "./note/NoteRepository";
 import { UidGenerator } from "./common/UidGenerator";
 import { UserFactory } from "./user/UserFactory";
 import { UserRepository } from "./user/UserRepository";
@@ -53,6 +57,10 @@ const ensembleFactory = new EnsembleFactory({
 	uidgenerator: uidGenerator
 });
 
+const noteFactory = new NoteFactory({
+	uidgenerator: uidGenerator
+});
+
 const eventStorageFile = new EventStorageFile({
 	path: "storedevents.json"
 });
@@ -73,6 +81,10 @@ const ensembleReader = new MemoryEnsembleReader({
 	eventStore: eventStore
 });
 
+const noteReader = new MemoryNoteReader({
+	eventStore: eventStore
+});
+
 const userRepository = new UserRepository({
 	userFactory: userFactory,
 	userReader: userReader
@@ -81,6 +93,11 @@ const userRepository = new UserRepository({
 const ensembleRepository = new EnsembleRepository({
 	ensembleFactory: ensembleFactory,
 	ensembleReader: ensembleReader
+});
+
+const noteRepository = new NoteRepository({
+	noteFactory: noteFactory,
+	noteReader: noteReader
 });
 
 const userService = new DomainUserService({
@@ -95,6 +112,12 @@ const ensembleService = new DomainEnsembleService({
 	eventSourcedObjectRepository: eventSourcedObjectRepository
 });
 
+const noteService = new DomainNoteService({
+	eventSourcedObjectRepository: eventSourcedObjectRepository,
+	noteFactory: noteFactory,
+	noteRepository: noteRepository
+});
+
 eventStore.replayEvents();
 
 app.use("/graphql", async (req, res, next) => {
@@ -104,8 +127,10 @@ app.use("/graphql", async (req, res, next) => {
 			session: req.session,
 			userReader: userReader,
 			ensembleReader: ensembleReader,
+			noteReader: noteReader,
 			userService: userService,
-			ensembleService: ensembleService
+			ensembleService: ensembleService,
+			noteService: noteService
 		})
 	})(req, res, next);
 });

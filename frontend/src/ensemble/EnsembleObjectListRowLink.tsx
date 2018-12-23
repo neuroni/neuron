@@ -9,9 +9,6 @@ export const EnsembleObjectListRowLink = (props: {
 }) => {
 	let link = "";
 
-	// tslint:disable-next-line
-	console.log("id", props.id);
-
 	switch (props.ensembleObjectType) {
 		case "Ensemble":
 			link = "/ensemble/" + props.id;

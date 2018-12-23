@@ -1,18 +1,18 @@
 import { EnsembleReader } from "../ensemble/EnsembleReader";
-import { EnsembleRelationCoordinatorReader } from "../ensemble/EnsembleRelationCoordinatorReader";
 import { EnsembleService } from "../ensemble/EnsembleService";
-import { RemoveEnsemble } from "../ensemble/removeEnsemble";
+import { NoteReader } from "../note/NoteReader";
+import { NoteService } from "../note/NoteService";
 import { UserReader } from "../user/UserReader";
 import { UserService } from "../user/UserService";
 
 export class Context {
-	public readonly removeEnsemble: RemoveEnsemble;
-	public readonly ensembleRelationCoordinatorReader: EnsembleRelationCoordinatorReader;
 	public readonly ensembleService: EnsembleService;
 	public readonly userService: UserService;
+	public readonly noteService: NoteService;
 
 	public readonly ensembleReader: EnsembleReader;
 	public readonly userReader: UserReader;
+	public readonly noteReader: NoteReader;
 
 	public readonly session: any;
 
@@ -20,14 +20,18 @@ export class Context {
 		session: any;
 		userReader: UserReader;
 		ensembleReader: EnsembleReader;
+		noteReader: NoteReader;
 		userService: UserService;
 		ensembleService: EnsembleService;
+		noteService: NoteService;
 	}) {
 		this.session = args.session;
 		this.userReader = args.userReader;
 		this.ensembleReader = args.ensembleReader;
 		this.userService = args.userService;
 		this.ensembleService = args.ensembleService;
+		this.noteReader = args.noteReader;
+		this.noteService = args.noteService;
 	}
 
 	public setCurrentUserId(userId: string) {

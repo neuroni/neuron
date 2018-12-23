@@ -1,0 +1,5 @@
+type Note implements EnsembleObject {
+	id: ID!
+	name: String
+	type: String!
+}

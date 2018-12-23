@@ -92,6 +92,9 @@ export const Mutation = {
 				});
 				break;
 			case "Note":
+				id = await context.noteService.createNote({
+					name: args.name
+				});
 				break;
 		}
 
