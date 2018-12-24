@@ -7,7 +7,9 @@ type Note implements EnsembleObject {
 
 input UpdatedNoteRow {
 	rowNumber: Int!
-	rowText: String!
+	rowText: String
+	onlyLineChange: Boolean
+	lineRemoved: Boolean
 }
 
 type NoteRow {

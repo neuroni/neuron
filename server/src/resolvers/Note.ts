@@ -35,11 +35,27 @@ export const Mutation = {
 			};
 		}
 
+		if (!args.updatedNoteRows) {
+			return {
+				success: true
+			};
+		}
+
 		await context.noteService.updateNote({
 			noteId: args.noteId,
-			name: args.name || undefined,
-			updatedNoteRows: args.updatedNoteRows || []
+			updatedNoteRows: args.updatedNoteRows.map(p => ({
+				rowNumber: p.rowNumber,
+				rowText: p.rowText || undefined,
+				onlyLineChange: p.onlyLineChange || false,
+				lineRemoved: p.lineRemoved || false
+			}))
 		});
+
+		// await context.noteService.updateNote({
+		// 	noteId: args.noteId,
+		// 	name: args.name || undefined,
+		// 	updatedNoteRows: args.updatedNoteRows || []
+		// });
 
 		return {
 			success: true

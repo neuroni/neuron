@@ -2,6 +2,8 @@ import { EventSourcedObjectRepository } from "../eventsourcing/EventSourcedObjec
 import { NoteFactory } from "./NoteFactory";
 import { NoteRepository } from "./NoteRepository";
 import { NoteService } from "./NoteService";
+import { RowLineBreak } from "./RowLineBreak";
+import { RowText } from "./RowText";
 
 export class DomainNoteService implements NoteService {
 	private noteFactory: NoteFactory;
@@ -35,7 +37,9 @@ export class DomainNoteService implements NoteService {
 		name?: string;
 		updatedNoteRows?: {
 			rowNumber: number;
-			rowText: string;
+			rowText?: string;
+			onlyLineChange?: boolean;
+			lineRemoved?: boolean;
 		}[];
 	}) {
 		const note = await this.noteRepository.fetchById(args.noteId);
@@ -49,11 +53,31 @@ export class DomainNoteService implements NoteService {
 		}
 
 		if (args.updatedNoteRows) {
-			args.updatedNoteRows.forEach(p => {
-				const row = note.getRow(p.rowNumber);
-				row.setText(p.rowText);
-				note.saveRow(p.rowNumber, row);
-			});
+			for (const updatedNoteRow of args.updatedNoteRows) {
+				if (updatedNoteRow.onlyLineChange) {
+					const newLineBreak = new RowLineBreak();
+
+					note.saveRow(updatedNoteRow.rowNumber, newLineBreak);
+
+					continue;
+				}
+
+				if (updatedNoteRow.lineRemoved) {
+					note.removeRow(updatedNoteRow.rowNumber);
+
+					continue;
+				}
+
+				if (updatedNoteRow.rowText) {
+					const newTextRow = new RowText({
+						text: updatedNoteRow.rowText
+					});
+
+					note.saveRow(updatedNoteRow.rowNumber, newTextRow);
+
+					continue;
+				}
+			}
 		}
 
 		this.eventSourcedObjectReposity.save(note);

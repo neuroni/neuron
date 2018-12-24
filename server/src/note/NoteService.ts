@@ -5,7 +5,9 @@ export interface NoteService {
 		name?: string;
 		updatedNoteRows: {
 			rowNumber: number;
-			rowText: string;
+			rowText?: string;
+			onlyLineChange?: boolean;
+			lineRemoved?: boolean;
 		}[];
 	}): Promise<void>;
 	removeNote(noteId: string): Promise<void>;

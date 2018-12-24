@@ -45,8 +45,6 @@ export class NoteEditor extends React.Component<{
 												updatedRows
 											}
 										});
-										// tslint:disable-next-line
-										console.log("updatedRows", updatedRows);
 									}}
 								/>
 							)}

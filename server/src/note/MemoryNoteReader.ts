@@ -4,7 +4,9 @@ import { NoteAggregateName } from "./NoteAggregateName";
 import { NoteCreatedEventPayload } from "./NoteCreatedEventPayload";
 import { NoteEvents } from "./NoteEvents";
 import { NoteReader } from "./NoteReader";
+import { NoteRow } from "../schemadef";
 import { NoteUpdatedEventPayload } from "./NoteUpdatedEventPayload";
+import { RowDto } from "./RowDto";
 import { SavedEvent } from "../eventsourcing/SavedEvent";
 
 export class MemoryNoteReader implements NoteReader {
@@ -19,8 +21,8 @@ export class MemoryNoteReader implements NoteReader {
 		);
 
 		this.state = {
-			noteById: {},
-			noteRows: {}
+			noteById: new Map(),
+			noteRows: new Map()
 		};
 	}
 
@@ -47,7 +49,7 @@ export class MemoryNoteReader implements NoteReader {
 				name: newEvent.data.name
 			};
 
-			this.state.noteById[newEvent.aggregateId] = note;
+			this.state.noteById.set(newEvent.aggregateId, note);
 
 			return;
 		}
@@ -64,40 +66,57 @@ export class MemoryNoteReader implements NoteReader {
 			}
 		}
 
-		if (!newEvent.data.rowNumber || !newEvent.data.rowText) {
+		if (!newEvent.data.updatedNoteRows) {
 			return;
 		}
 
-		let noteRows = this.state.noteRows[newEvent.aggregateId];
+		let noteRows = this.state.noteRows.get(newEvent.aggregateId);
 
 		if (!noteRows) {
-			noteRows = [];
-			this.state.noteRows[newEvent.aggregateId] = noteRows;
+			noteRows = new Map<number, RowDto>();
+			this.state.noteRows.set(newEvent.aggregateId, noteRows);
 		}
 
-		let row = noteRows.find(p => p.rowNumber === newEvent.data.rowNumber);
+		for (const updatedNoteRow of newEvent.data.updatedNoteRows) {
+			if (updatedNoteRow.lineRemoved) {
+				noteRows.delete(updatedNoteRow.rowNumber);
+				continue;
+			}
 
-		if (!row) {
-			row = {
-				rowNumber: newEvent.data.rowNumber,
-				text: newEvent.data.rowText
-			};
-			noteRows.push(row);
-			return;
+			if (updatedNoteRow.onlyLineChange) {
+				noteRows.set(updatedNoteRow.rowNumber, {
+					rowNumber: updatedNoteRow.rowNumber,
+					text: ""
+				});
+				continue;
+			}
+
+			if (updatedNoteRow.rowText) {
+				noteRows.set(updatedNoteRow.rowNumber, {
+					rowNumber: updatedNoteRow.rowNumber,
+					text: updatedNoteRow.rowText
+				});
+				continue;
+			}
 		}
-
-		row.text = newEvent.data.rowText;
 	}
 
 	handleNoteRemoved(newEvent: SavedEvent) {
-		this.state.noteById[newEvent.aggregateId] = undefined;
+		this.state.noteById.delete(newEvent.aggregateId);
+		this.state.noteRows.delete(newEvent.aggregateId);
 	}
 
 	async fetchNoteById(noteId: string) {
-		return this.state.noteById[noteId];
+		return this.state.noteById.get(noteId);
 	}
 
 	async fetchNoteRows(noteId: string) {
-		return this.state.noteRows[noteId] || [];
+		const rows = this.state.noteRows.get(noteId);
+
+		if (!rows) {
+			return [];
+		}
+
+		return Array.from(rows.values());
 	}
 }

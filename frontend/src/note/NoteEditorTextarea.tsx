@@ -8,12 +8,7 @@ import {
 	genKey
 } from "draft-js";
 
-import { List } from "immutable";
-
-interface IUpdatedRow {
-	rowNumber: number;
-	rowText: string;
-}
+import { UpdatedNoteRow } from "src/types/operation-results-types";
 
 interface INoteEditorTextareaProps {
 	delay?: number;
@@ -21,169 +16,175 @@ interface INoteEditorTextareaProps {
 		rowNumber: number;
 		text: string;
 	}>;
-	onChange: (rows: IUpdatedRow[]) => void;
+	onChange: (rows: UpdatedNoteRow[]) => void;
 }
 
 export class NoteEditorTextarea extends React.Component<
 	INoteEditorTextareaProps,
 	{
-		updatedRows: Array<{ rowNumber: number; rowText: string }>;
 		editorState: EditorState;
 	}
 > {
 	private onChangeTimer: undefined | NodeJS.Timer;
+	private updatedRows: Map<number, UpdatedNoteRow>;
 
 	constructor(props) {
 		super(props);
-		// tslint:disable-next-line
-		console.log("constoajnt");
+		this.updatedRows = new Map<number, UpdatedNoteRow>();
 
-		const editorState = EditorState.createEmpty();
-		const contentState = editorState.getCurrentContent();
-		let blockMap = contentState.getBlockMap();
+		if (this.props.rows.length === 0) {
+			this.state = {
+				editorState: EditorState.createEmpty()
+			};
+			return;
+		}
+
+		this.props.rows.sort((a, b) => a.rowNumber - b.rowNumber);
+
+		const blocks: ContentBlock[] = [];
 
 		this.props.rows.forEach(p => {
 			const newBlock = new ContentBlock({
-				key: genKey(),
 				type: "unstyled",
 				text: p.text,
-				characterList: List()
+				key: genKey()
 			});
 
-			blockMap = blockMap.set(newBlock.get("key"), newBlock);
+			blocks.push(newBlock);
 		});
 
-		// tslint:disable-next-line
-		console.log("blockMap", blockMap.toObject());
+		const newContentState = ContentState.createFromBlockArray(blocks);
 
 		this.state = {
-			updatedRows: [],
-			editorState: EditorState.push(
-				editorState,
-				ContentState.createFromBlockArray(blockMap.toArray()),
-				"change-block-data"
-			)
+			editorState: EditorState.createWithContent(newContentState)
 		};
 	}
 
-	// public componentWillReceiveProps(newProps: INoteEditorTextareaProps) {
-	// 	const editorState = EditorState.createEmpty();
-	// 	const contentState = editorState.getCurrentContent();
-	// 	let blockMap = contentState.getBlockMap();
-
-	// 	this.props.rows.forEach(p => {
-	// 		const newBlock = new ContentBlock({
-	// 			key: genKey(),
-	// 			type: "unstyled",
-	// 			text: p.text,
-	// 			characterList: List()
-	// 		});
-
-	// 		blockMap = blockMap.set(newBlock.get("key"), newBlock);
-	// 	});
-
-	// 	// tslint:disable-next-line
-	// 	console.log("blockMap", blockMap.toObject());
-
-	// 	this.setState({
-	// 		editorState: EditorState.push(
-	// 			editorState,
-	// 			ContentState.createFromBlockArray(blockMap.toArray()),
-	// 			"change-block-data"
-	// 		)
-	// 	});
-	// }
-
 	public handleOnChange() {
+		const updatedRows = Array.from(this.updatedRows.values());
+
 		if (this.props.delay) {
 			if (this.onChangeTimer) {
 				clearTimeout(this.onChangeTimer as NodeJS.Timer);
 			}
 			this.onChangeTimer = setTimeout(() => {
-				if (this.props.onChange && this.state.updatedRows.length > 0) {
-					this.props.onChange(this.state.updatedRows);
-					this.setState({
-						updatedRows: []
-					});
+				if (this.props.onChange && updatedRows.length > 0) {
+					this.props.onChange(updatedRows);
+					this.updatedRows.clear();
 				}
 			}, this.props.delay);
 		} else {
-			if (this.props.onChange && this.state.updatedRows.length > 0) {
-				this.props.onChange(this.state.updatedRows);
-				this.setState({
-					updatedRows: []
-				});
+			if (this.props.onChange && updatedRows.length > 0) {
+				this.props.onChange(updatedRows);
+				this.updatedRows.clear();
 			}
 		}
 	}
 
 	public handleEditorStateChanged(editorState: EditorState) {
+		const oldContent = this.state.editorState.getCurrentContent();
+
 		this.setState({
 			editorState
 		});
 
-		const selection = editorState.getSelection();
-		const content = editorState.getCurrentContent();
-		const blocksArray = content.getBlocksAsArray();
-		const oldBlocksMap = this.state.editorState
-			.getCurrentContent()
-			.getBlockMap();
+		const newContent = editorState.getCurrentContent();
 
-		const anchorKey = selection.get("anchorKey");
+		const blocksArray = newContent.getBlocksAsArray();
+		const oldBlocksArray = oldContent.getBlocksAsArray();
 
-		let rowNumber = 1;
-		for (const block of blocksArray) {
-			const key = block.get("key");
+		let maxLength = oldBlocksArray.length;
+		if (blocksArray.length > maxLength) {
+			maxLength = blocksArray.length;
+		}
 
-			if (key !== anchorKey) {
-				rowNumber++;
+		let somethingChanged = false;
+
+		for (let i = 0; i < maxLength; i++) {
+			const rowNumber = i + 1;
+			const oldBlock = oldBlocksArray[i];
+			const newBlock = blocksArray[i];
+
+			if (!oldBlock && !newBlock) {
 				continue;
 			}
 
-			const rowText = block.get("text");
-			const oldRowText = oldBlocksMap.get(key)
-				? oldBlocksMap.get(key).get("text")
-				: "";
+			if (!oldBlock) {
+				somethingChanged = true;
 
-			if (oldRowText === rowText) {
-				return false;
+				const text = newBlock.get("text");
+
+				this.updatedRows.set(rowNumber, {
+					rowNumber,
+					rowText: text,
+					onlyLineChange: text === ""
+				});
+
+				continue;
 			}
 
-			const updatedRow = {
+			if (!newBlock) {
+				somethingChanged = true;
+
+				this.updatedRows.set(rowNumber, {
+					rowNumber,
+					lineRemoved: true
+				});
+
+				continue;
+			}
+
+			const oldText = oldBlock.get("text");
+			const newText = newBlock.get("text");
+
+			if (oldText === newText) {
+				continue;
+			}
+
+			if (newText === "") {
+				this.updatedRows.set(rowNumber, {
+					rowNumber,
+					onlyLineChange: true
+				});
+
+				somethingChanged = true;
+
+				continue;
+			}
+
+			this.updatedRows.set(rowNumber, {
 				rowNumber,
-				rowText
-			};
-
-			const newUpdatedRows = this.state.updatedRows.filter(
-				p => p.rowNumber !== rowNumber
-			);
-
-			newUpdatedRows.push(updatedRow);
-
-			this.setState({
-				updatedRows: newUpdatedRows
+				rowText: newText
 			});
 
-			return true;
+			somethingChanged = true;
 		}
 
-		return false;
+		return somethingChanged;
 	}
 
 	public render() {
 		return (
-			<Editor
-				editorState={this.state.editorState}
-				onChange={editorState => {
-					const changed = this.handleEditorStateChanged(editorState);
-
-					if (!changed) {
-						return;
-					}
-
-					this.handleOnChange();
+			<div
+				style={{
+					border: "solid 1px black"
 				}}
-			/>
+			>
+				<Editor
+					editorState={this.state.editorState}
+					onChange={editorState => {
+						const changed = this.handleEditorStateChanged(
+							editorState
+						);
+
+						if (!changed) {
+							return;
+						}
+
+						this.handleOnChange();
+					}}
+				/>
+			</div>
 		);
 	}
 }

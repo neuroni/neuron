@@ -2,6 +2,6 @@ import { NoteDto } from "./NoteDto";
 import { RowDto } from "./RowDto";
 
 export interface MemoryNoteReaderState {
-	noteById: { [noteId: string]: NoteDto | undefined };
-	noteRows: { [noteId: string]: RowDto[] };
+	noteById: Map<string, NoteDto | undefined>;
+	noteRows: Map<string, Map<number, RowDto>>;
 }

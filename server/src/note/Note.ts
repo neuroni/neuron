@@ -4,6 +4,8 @@ import { EventTrunk } from "../eventsourcing/EventTrunk";
 import { NoteAggregateName } from "./NoteAggregateName";
 import { NoteEvents } from "./NoteEvents";
 import { Row } from "./Row.ts";
+import { RowLineBreak } from "./RowLineBreak";
+import { RowText } from "./RowText";
 
 export class Note extends EventSourcedObject {
 	private id: string;
@@ -38,32 +40,59 @@ export class Note extends EventSourcedObject {
 
 	public setName(newName: string) {
 		this.name = newName;
-		this.insertUncommittedEvent({
-			data: {
-				newName: newName
-			},
-			eventName: NoteEvents.NOTE_UPDATED
-		});
+
+		const noteUpdatedEvent = this.getNoteUpdatedEvent();
+		noteUpdatedEvent.data.newName;
 	}
 
 	public getRow(rowNumber: number) {
-		let row = this.rows.get(rowNumber);
-		if (!row) {
-			row = new Row();
+		return this.rows.get(rowNumber);
+	}
+
+	public removeRow(rowNumber: number) {
+		this.rows.delete(rowNumber);
+
+		const noteUpdatedEvent = this.getNoteUpdatedEvent();
+
+		if (noteUpdatedEvent.data.updatedNoteRows) {
+			noteUpdatedEvent.data.updatedNoteRows.filter(p => {
+				p.rowNumber !== rowNumber;
+			});
 		}
 
-		return row;
+		if (!noteUpdatedEvent.data.updatedNoteRows) {
+			noteUpdatedEvent.data.updatedNoteRows = [];
+		}
+
+		noteUpdatedEvent.data.updatedNoteRows.push({
+			rowNumber,
+			lineRemoved: true
+		});
 	}
 
 	public saveRow(rowNumber: number, row: Row) {
 		this.rows.set(rowNumber, row);
-		this.insertUncommittedEvent({
-			data: {
-				rowNumber: rowNumber,
-				rowText: row.getText()
-			},
-			eventName: NoteEvents.NOTE_UPDATED
-		});
+
+		const noteUpdatedEvent = this.getNoteUpdatedEvent();
+		if (!noteUpdatedEvent.data.updatedNoteRows) {
+			noteUpdatedEvent.data.updatedNoteRows = [];
+		}
+
+		switch (row.constructor) {
+			case RowText:
+				const rowText = row as RowText;
+				noteUpdatedEvent.data.updatedNoteRows.push({
+					rowNumber: rowNumber,
+					rowText: rowText.getText()
+				});
+				break;
+			case RowLineBreak:
+				noteUpdatedEvent.data.updatedNoteRows.push({
+					rowNumber: rowNumber,
+					onlyLineChange: true
+				});
+				break;
+		}
 	}
 
 	public remove() {
@@ -71,5 +100,32 @@ export class Note extends EventSourcedObject {
 			data: {},
 			eventName: NoteEvents.NOTE_REMOVED
 		});
+	}
+
+	private getNoteUpdatedEvent(): {
+		eventName: NoteEvents;
+		data: {
+			newName?: string;
+			updatedNoteRows?: Array<{
+				rowNumber: number;
+				rowText?: string;
+				onlyLineChange?: boolean;
+				lineRemoved?: boolean;
+			}>;
+		};
+	} {
+		let noteUpdatedEvent: any = this.getUncommittedEvents().find(
+			p => p.eventName === NoteEvents.NOTE_UPDATED
+		);
+
+		if (!noteUpdatedEvent) {
+			noteUpdatedEvent = {
+				eventName: NoteEvents.NOTE_UPDATED,
+				data: {}
+			};
+			this.insertUncommittedEvent(noteUpdatedEvent);
+		}
+
+		return noteUpdatedEvent;
 	}
 }
