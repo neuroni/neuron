@@ -1,5 +1,6 @@
 type Query {
 	ensemble(ensembleId: ID!): Ensemble
 	userEnsembles: EnsemblesConnection
+	note(noteId: ID!): Note
 	viewer: Viewer!
 }

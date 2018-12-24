@@ -33,8 +33,10 @@ export class DomainNoteService implements NoteService {
 	async updateNote(args: {
 		noteId: string;
 		name?: string;
-		rowNumber?: number;
-		rowText?: string;
+		updatedNoteRows?: {
+			rowNumber: number;
+			rowText: string;
+		}[];
 	}) {
 		const note = await this.noteRepository.fetchById(args.noteId);
 
@@ -46,9 +48,12 @@ export class DomainNoteService implements NoteService {
 			note.setName(args.name);
 		}
 
-		if (args.rowNumber && args.rowText) {
-			const row = note.getRow(args.rowNumber);
-			row.setText(args.rowText);
+		if (args.updatedNoteRows) {
+			args.updatedNoteRows.forEach(p => {
+				const row = note.getRow(p.rowNumber);
+				row.setText(p.rowText);
+				note.saveRow(p.rowNumber, row);
+			});
 		}
 
 		this.eventSourcedObjectReposity.save(note);

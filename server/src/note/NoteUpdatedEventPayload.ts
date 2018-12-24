@@ -4,6 +4,6 @@ export interface NoteUpdatedEventPayload extends SavedEvent {
 	data: {
 		newName?: string;
 		rowNumber?: number;
-		rowtext?: string;
+		rowText?: string;
 	};
 }

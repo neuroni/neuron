@@ -1,5 +1,20 @@
 type Note implements EnsembleObject {
 	id: ID!
-	name: String
+	name: String!
 	type: String!
+	rows: [NoteRow!]!
+}
+
+input UpdatedNoteRow {
+	rowNumber: Int!
+	rowText: String!
+}
+
+type NoteRow {
+	rowNumber: Int!
+	text: String!
+}
+
+type UpdateNoteResponse {
+	success: Boolean
 }

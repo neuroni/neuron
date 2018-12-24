@@ -7,6 +7,7 @@ import { EnsemblePage } from "./pages/EnsemblePage";
 import { EnsemblesPage } from "./pages/EnsemblesPage";
 import { GetPageViewer } from "./viewer/GetPageViewer";
 import { LoginPage } from "./pages/LoginPage";
+import { NotePage } from "./pages/NotePage";
 
 export class Routes extends React.Component {
 	public render() {
@@ -44,6 +45,7 @@ export class Routes extends React.Component {
 								path="/ensemble/:ensembleId"
 								component={EnsemblePage}
 							/>
+							<Route path="/note/:noteId" component={NotePage} />
 						</Switch>
 					);
 				}}

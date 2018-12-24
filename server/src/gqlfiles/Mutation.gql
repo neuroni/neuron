@@ -7,5 +7,10 @@ type Mutation {
 		parentEnsembleId: ID!
 		type: String!
 	): CreateEnsembleObjectResponse
+	updateNote(
+		noteId: ID!
+		name: String
+		updatedNoteRows: [UpdatedNoteRow]
+	): UpdateNoteResponse
 	logout: LogoutResponse
 }

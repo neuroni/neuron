@@ -64,7 +64,7 @@ export class MemoryNoteReader implements NoteReader {
 			}
 		}
 
-		if (!newEvent.data.rowNumber || !newEvent.data.rowtext) {
+		if (!newEvent.data.rowNumber || !newEvent.data.rowText) {
 			return;
 		}
 
@@ -80,12 +80,13 @@ export class MemoryNoteReader implements NoteReader {
 		if (!row) {
 			row = {
 				rowNumber: newEvent.data.rowNumber,
-				text: newEvent.data.rowtext
+				text: newEvent.data.rowText
 			};
+			noteRows.push(row);
 			return;
 		}
 
-		row.text = newEvent.data.rowtext;
+		row.text = newEvent.data.rowText;
 	}
 
 	handleNoteRemoved(newEvent: SavedEvent) {
@@ -94,5 +95,9 @@ export class MemoryNoteReader implements NoteReader {
 
 	async fetchNoteById(noteId: string) {
 		return this.state.noteById[noteId];
+	}
+
+	async fetchNoteRows(noteId: string) {
+		return this.state.noteRows[noteId] || [];
 	}
 }

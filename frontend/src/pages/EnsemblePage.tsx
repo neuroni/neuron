@@ -20,12 +20,6 @@ export const EnsemblePage = (args: InputProps) => (
 					return <div />;
 				}
 
-				// tslint:disable-next-line
-				console.log(
-					"data",
-					props.data.ensemble && props.data.ensemble.ensembleObjects
-				);
-
 				return (
 					<Grid>
 						<CreateEnsembleObjectSelectForm
