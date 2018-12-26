@@ -3,6 +3,7 @@ import * as cors from "cors";
 import * as express from "express";
 import * as session from "express-session";
 
+import { FilesystemStorageDriver, StorageRepository } from "./storage";
 import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
@@ -23,6 +24,7 @@ import { UidGenerator } from "./common/UidGenerator";
 import { UserFactory } from "./user/UserFactory";
 import { UserRepository } from "./user/UserRepository";
 import { schema } from "./schema";
+import { uploadRouter } from "./upload/uploadRouter";
 
 const app = express();
 
@@ -63,6 +65,14 @@ const noteFactory = new NoteFactory({
 
 const eventStorageFile = new EventStorageFile({
 	path: "storedevents.json"
+});
+
+const filesystemStorageDriver = new FilesystemStorageDriver({
+	directoryPath: "files"
+});
+
+const fileRepository = new StorageRepository({
+	storageDriver: filesystemStorageDriver
 });
 
 const eventStore = new MockEventStore({
@@ -119,6 +129,8 @@ const noteService = new DomainNoteService({
 });
 
 eventStore.replayEvents();
+
+app.use("/upload", uploadRouter);
 
 app.use("/graphql", async (req, res, next) => {
 	graphqlExpress({
