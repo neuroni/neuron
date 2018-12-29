@@ -1,4 +1,4 @@
-import { createReadStream, createWriteStream } from "fs-extra";
+import { createReadStream, createWriteStream, ensureDirSync } from "fs-extra";
 
 import { StorageDriver } from "./StorageDriver";
 import { join } from "path";
@@ -8,6 +8,8 @@ export class FilesystemStorageDriver implements StorageDriver {
 
 	constructor(args: { directoryPath: string }) {
 		this.directoryPath = args.directoryPath;
+
+		ensureDirSync(this.directoryPath);
 	}
 
 	createWriteStream(id: string) {

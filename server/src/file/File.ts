@@ -2,9 +2,9 @@ import { CurrentFileAggregateSchemaVersion } from "./CurrentFileAggregateSchemaV
 import { EventSourcedObject } from "../eventsourcing/EventSourcedObject";
 import { FileAggregateName } from "./FileAggregateName";
 import { Readable } from "stream";
-import { StorageDriver } from "./StorageDriver";
+import { StorageDriver } from "../storage/StorageDriver";
 import { createReadStream } from "fs";
-import { getFileTypeFromReadable } from "./getFileTypeFromReadable";
+import { getFileTypeFromReadable } from "../storage/getFileTypeFromReadable";
 
 export class File extends EventSourcedObject {
 	public readonly id: string;

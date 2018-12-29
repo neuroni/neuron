@@ -1,5 +1,5 @@
 import { File } from "./File";
-import { StorageDriver } from "./StorageDriver";
+import { StorageDriver } from "../storage/StorageDriver";
 
 export class Image extends File {
 	private width: number;

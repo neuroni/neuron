@@ -1,4 +1,4 @@
-import { File } from "./File";
+import { File } from "../file/File";
 import { StorageDriver } from "./StorageDriver";
 import { v4 } from "uuid";
 

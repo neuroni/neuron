@@ -1,6 +1,6 @@
 import * as getFileType from "file-type";
 
-import { FileType } from "./FileType";
+import { FileType } from "../file/FileType";
 import { Readable } from "stream";
 
 export const getFileTypeFromReadable = (reader: Readable): Promise<FileType> =>
