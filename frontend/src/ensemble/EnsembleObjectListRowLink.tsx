@@ -16,6 +16,8 @@ export const EnsembleObjectListRowLink = (props: {
 		case "Note":
 			link = "/note/" + props.id;
 			break;
+		case "File":
+			link = "/file/" + props.id;
 	}
 
 	if (props.id === "") {

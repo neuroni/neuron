@@ -1,0 +1,5 @@
+type File implements EnsembleObject {
+	id: ID!
+	name: String
+	type: String!
+}
