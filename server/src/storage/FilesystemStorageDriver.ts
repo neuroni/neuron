@@ -1,9 +1,9 @@
 import { createReadStream, createWriteStream } from "fs-extra";
 
-import { IStorageDriver } from "./StorageDriver";
+import { StorageDriver } from "./StorageDriver";
 import { join } from "path";
 
-export class FilesystemStorageDriver implements IStorageDriver {
+export class FilesystemStorageDriver implements StorageDriver {
 	private directoryPath: string;
 
 	constructor(args: { directoryPath: string }) {

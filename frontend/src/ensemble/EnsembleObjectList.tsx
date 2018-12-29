@@ -5,26 +5,8 @@ import { EnsembleObjectListRowLink } from "./EnsembleObjectListRowLink";
 import { Table } from "react-bootstrap";
 import { post } from "superagent";
 
-const baseStyle = {
-	width: 200,
-	height: 200,
-	borderWidth: 2,
-	borderColor: "#666",
-	borderStyle: "dashed",
-	borderRadius: 5
-};
-const activeStyle = {
-	borderStyle: "solid",
-	borderColor: "#6c6",
-	backgroundColor: "#eee"
-};
-// const rejectStyle = {
-// 	borderStyle: "solid",
-// 	borderColor: "#c66",
-// 	backgroundColor: "#eee"
-// };
-
 export const EnsembleObjectList = (args: {
+	ensembleId: string;
 	ensembleObjects: Array<{
 		id: string;
 		name: string | null;
@@ -35,25 +17,22 @@ export const EnsembleObjectList = (args: {
 		onDrop={accepted => {
 			const file = accepted[0];
 
-			// tslint:disable-next-line
-			console.log("onDrop", file);
-
 			if (!file) {
 				return;
 			}
 
 			const req = post("http://localhost:8897/upload");
 
+			req.field({
+				ensembleId: args.ensembleId
+			});
+
 			req.attach("file", file);
 
 			req.end();
 		}}
 	>
-		{({ getRootProps, getInputProps, isDragActive }) => {
-			let styles = { ...baseStyle };
-			styles = isDragActive ? { ...styles, ...activeStyle } : styles;
-			// styles = isDragReject ? { ...styles, ...rejectStyle } : styles;
-
+		{({ getRootProps, isDragActive }) => {
 			return (
 				<div
 					{...getRootProps()}

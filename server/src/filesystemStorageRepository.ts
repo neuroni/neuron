@@ -1,5 +1,5 @@
-import { FilesystemStorageDriver, StorageRepository } from "./storage";
-
+import { FilesystemStorageDriver } from "./storage/FilesystemStorageDriver";
+import { StorageRepository } from "./storage/StorageRepository";
 import { ensureDirSync } from "fs-extra";
 
 ensureDirSync("files");

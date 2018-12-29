@@ -27,6 +27,7 @@ export const EnsemblePage = (args: InputProps) => (
 						/>
 						{props.data.ensemble && (
 							<EnsembleObjectList
+								ensembleId={args.match.params.ensembleId}
 								ensembleObjects={
 									props.data.ensemble.ensembleObjects
 								}

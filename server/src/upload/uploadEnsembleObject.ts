@@ -1,10 +1,16 @@
 import { Request, Response } from "express";
 
-import { StorageRepository } from "../storage";
-import { filesystemStorageRepository } from "../filesystemStorageRepository";
+import { EnsembleService } from "../ensemble/EnsembleService";
+import { FileDataRepository } from "../storage/FileDataRepository";
+import { FileService } from "../file/FileService";
 
 export interface UploadEnsembleObjectRequest extends Request {
-	storageRepository: StorageRepository;
+	fileDataRepository: FileDataRepository;
+	fileService: FileService;
+	ensembleService: EnsembleService;
+	body: {
+		ensembleId: string;
+	};
 }
 
 export interface UploadEnsembleObjectResponse extends Response {}
@@ -13,8 +19,28 @@ export const uploadEnsembleObject = async (
 	req: UploadEnsembleObjectRequest,
 	res: UploadEnsembleObjectResponse
 ) => {
-	const filePath = req.file.path;
+	const reqFile = req.file;
+	const filePath = reqFile.path;
+	const fileData = await req.fileDataRepository.createFromPath(filePath);
 
-	const file = await req.storageRepository.create();
-	await file.writeFromPath(filePath);
+	if (!fileData) {
+		return res.end();
+	}
+
+	const fileId = await req.fileService.createFile({
+		fileDataId: fileData.id,
+		originalName: reqFile.originalname,
+		originalSize: reqFile.size,
+		mimeType: reqFile.mimetype
+	});
+
+	await req.ensembleService.createEnsembleObject({
+		ensembleId: req.body.ensembleId,
+		id: fileId,
+		name: reqFile.originalname,
+		type: "File"
+	});
+
+	res.status(200);
+	res.end();
 };

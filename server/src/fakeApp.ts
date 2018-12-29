@@ -3,17 +3,19 @@ import * as cors from "cors";
 import * as express from "express";
 import * as session from "express-session";
 
-import { FilesystemStorageDriver, StorageRepository } from "./storage";
 import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
 
 import { Context } from "./graphql/Context";
 import { DomainEnsembleService } from "./ensemble/DomainEnsembleService";
+import { DomainFileService } from "./file/DomainFileService";
 import { DomainNoteService } from "./note/DomainNoteService";
 import { DomainUserService } from "./user/DomainUserService";
 import { EnsembleFactory } from "./ensemble/EnsembleFactory";
 import { EnsembleRepository } from "./ensemble/EnsembleRepository";
 import { EventSourcedObjectRepository } from "./eventsourcing/EventSourcedObjectRepository";
 import { EventStorageFile } from "./eventsourcing/EventStorageFile";
+import { FileDataRepository } from "./storage/FileDataRepository";
+import { FilesystemStorageDriver } from "./storage/FilesystemStorageDriver";
 import { MemoryEnsembleReader } from "./ensemble/MemoryEnsembleReader";
 import { MemoryNoteReader } from "./note/MemoryNoteReader";
 import { MemoryUserReader } from "./user/MemoryUserReader";
@@ -71,7 +73,7 @@ const filesystemStorageDriver = new FilesystemStorageDriver({
 	directoryPath: "files"
 });
 
-const fileRepository = new StorageRepository({
+const fileDataRepository = new FileDataRepository({
 	storageDriver: filesystemStorageDriver
 });
 
@@ -128,7 +130,17 @@ const noteService = new DomainNoteService({
 	noteRepository: noteRepository
 });
 
+const fileService = new DomainFileService();
+
 eventStore.replayEvents();
+
+app.use((req: any, res, next) => {
+	req.fileDataRepository = fileDataRepository;
+	req.fileService = fileService;
+	req.ensembleService = ensembleService;
+
+	next();
+});
 
 app.use("/upload", uploadRouter);
 

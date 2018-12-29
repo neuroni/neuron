@@ -12,16 +12,16 @@ export class StorageRepository {
 	async create() {
 		const id = v4();
 
-		return new File({
-			id: id,
-			storageDriver: this.storageDriver
-		});
+		// return new File({
+		// 	id: id,
+		// 	storageDriver: this.storageDriver
+		// });
 	}
 
 	async fetch(id: string) {
-		return new File({
-			id: id,
-			storageDriver: this.storageDriver
-		});
+		// return new File({
+		// 	id: id,
+		// 	storageDriver: this.storageDriver
+		// });
 	}
 }
